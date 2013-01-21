@@ -1,6 +1,6 @@
 = Elgg Search =
 
-Full text search developer's reference.
+Elgg search developer's reference.
 
 == Contents ==
 
@@ -19,7 +19,7 @@ Full text search developer's reference.
 == 1. Overview ==
 
 All entities are searched through title and description using
-MySQL's native fulltext search when possible, and `LIKE %...%` when not.
+MySQL's `LIKE %...%`.
 This can be overridden on a type/subtype basis.
 
 Entities are displayed in a standard list view consisting of a 
@@ -268,9 +268,6 @@ uses volatile data.
 		'count' => $count,
 		'entities' => array($entity)
 	);
-
-MySQL's fulltext engine returns *ZERO* rows if more than 50% of 
-the rows searched match.
 
 The default search hooks for users and groups ignore subtypes.
 See [trac ticket 1499](http://trac.elgg.org/elgg/ticket/1499)

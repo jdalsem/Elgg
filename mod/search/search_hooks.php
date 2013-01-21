@@ -23,7 +23,7 @@ function search_objects_hook($hook, $type, $value, $params) {
 	$params['joins'] = array($join);
 	$fields = array('title', 'description');
 
-	$where = search_get_where_sql('oe', $fields, $params, FALSE);
+	$where = search_get_where_sql('oe', $fields, $params);
 
 	$params['wheres'] = array($where);
 	$params['count'] = TRUE;
@@ -71,9 +71,7 @@ function search_groups_hook($hook, $type, $value, $params) {
 	
 	$fields = array('name', 'description');
 
-	// force into boolean mode because we've having problems with the
-	// "if > 50% match 0 sets are returns" problem.
-	$where = search_get_where_sql('ge', $fields, $params, FALSE);
+	$where = search_get_where_sql('ge', $fields, $params);
 
 	$params['wheres'] = array($where);
 
@@ -130,7 +128,7 @@ function search_users_hook($hook, $type, $value, $params) {
 		
 	// username and display name
 	$fields = array('username', 'name');
-	$where = search_get_where_sql('ue', $fields, $params, FALSE);
+	$where = search_get_where_sql('ue', $fields, $params);
 
 	// profile fields
 	$profile_fields = array_keys(elgg_get_config('profile_fields'));
@@ -142,9 +140,8 @@ function search_users_hook($hook, $type, $value, $params) {
 	));
 
 	$params['joins'] = array_merge($clauses['joins'], $params['joins']);
-	// no fulltext index, can't disable fulltext search in this function.
-	// $md_where .= " AND " . search_get_where_sql('msv', array('string'), $params, FALSE);
-	$md_where = "(({$clauses['wheres'][0]}) AND msv.string LIKE '%$query%')";
+	
+	$md_where = "(({$clauses['wheres'][0]}) AND " . search_get_where_sql('msv', array('string'), $params) . ")";
 	
 	$params['wheres'] = array("(($where) OR ($md_where))");
 
@@ -166,7 +163,7 @@ function search_users_hook($hook, $type, $value, $params) {
 		
 		$title = search_get_highlighted_relevant_substrings($entity->name, $query);
 
-		// include the username if it matches but the display name doesn't.
+		// include the username if it matches
 		if (false !== strpos($entity->username, $query)) {
 			$username = search_get_highlighted_relevant_substrings($entity->username, $query);
 			$title .= " ($username)";
@@ -364,9 +361,7 @@ function search_comments_hook($hook, $type, $value, $params) {
 
 	$fields = array('string');
 
-	// force IN BOOLEAN MODE since fulltext isn't
-	// available on metastrings (and boolean mode doesn't need it)
-	$search_where = search_get_where_sql('msv', $fields, $params, FALSE);
+	$search_where = search_get_where_sql('msv', $fields, $params);
 
 	$container_and = '';
 	if ($params['container_guid'] && $params['container_guid'] !== ELGG_ENTITIES_ANY_VALUE) {

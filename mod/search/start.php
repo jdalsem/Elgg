@@ -10,7 +10,6 @@ elgg_register_event_handler('init','system','search_init');
  * Initialize search plugin
  */
 function search_init() {
-	global $CONFIG;
 	require_once 'search_hooks.php';
 
 	// page handler for search actions and results
@@ -28,22 +27,6 @@ function search_init() {
 
 	elgg_register_plugin_hook_handler('search_types', 'get_types', 'search_custom_types_comments_hook');
 	elgg_register_plugin_hook_handler('search', 'comments', 'search_comments_hook');
-
-	// get server min and max allowed chars for ft searching
-	$CONFIG->search_info = array();
-
-	// can't use get_data() here because some servers don't have these globals set,
-	// which throws a db exception.
-	$dblink = get_db_link('read');
-	$r = mysql_query('SELECT @@ft_min_word_len as min, @@ft_max_word_len as max', $dblink);
-	if ($r && ($word_lens = mysql_fetch_assoc($r))) {
-		$CONFIG->search_info['min_chars'] = $word_lens['min'];
-		$CONFIG->search_info['max_chars'] = $word_lens['max'];
-	} else {
-		// uhhh these are good numbers.
-		$CONFIG->search_info['min_chars'] = 4;
-		$CONFIG->search_info['max_chars'] = 90;
-	}
 
 	// add in CSS for search elements
 	elgg_extend_view('css/elgg', 'search/css');
@@ -307,19 +290,17 @@ function search_highlight_words($words, $string) {
  * @param str $format Return as an array or a string
  * @return mixed
  */
-function search_remove_ignored_words($query, $format = 'array') {
-	global $CONFIG;
-
+function search_remove_ignored_words($query, $format = 'array', $min_chars = 4) {
+	$min_chars = sanitise_int($min_chars, false);
+	
 	// don't worry about "s or boolean operators
 	//$query = str_replace(array('"', '-', '+', '~'), '', stripslashes(strip_tags($query)));
 	$query = stripslashes(strip_tags($query));
 	
 	$words = explode(' ', $query);
 
-	$min_chars = $CONFIG->search_info['min_chars'];
-	// if > ft_min_word we're not running in literal mode.
 	if (elgg_strlen($query) >= $min_chars) {
-		// clean out any words that are ignored by mysql
+		// clean out short words
 		foreach ($words as $i => $word) {
 			if (elgg_strlen($word) < $min_chars) {
 				unset ($words[$i]);
@@ -392,60 +373,25 @@ function search_get_search_view($params, $view_type) {
  * @param array $params Original search params
  * @return str
  */
-function search_get_where_sql($table, $fields, $params, $use_fulltext = TRUE) {
-	global $CONFIG;
+function search_get_where_sql($table, $fields, $params) {
+	$where = '';
+			
 	$query = $params['query'];
-
+	
 	// add the table prefix to the fields
-	foreach ($fields as $i => $field) {
-		if ($table) {
+	if ($table) {
+		foreach ($fields as $i => $field) {
 			$fields[$i] = "$table.$field";
 		}
 	}
-	
-	$where = '';
 
-	// if query is shorter than the min for fts words
-	// it's likely a single acronym or similar
-	// switch to literal mode
-	if (elgg_strlen($query) < $CONFIG->search_info['min_chars']) {
-		$likes = array();
-		$query = sanitise_string($query);
-		foreach ($fields as $field) {
-			$likes[] = "$field LIKE '%$query%'";
-		}
-		$likes_str = implode(' OR ', $likes);
-		$where = "($likes_str)";
-	} else {
-		// if we're not using full text, rewrite the query for bool mode.
-		// exploiting a feature(ish) of bool mode where +-word is the same as -word
-		if (!$use_fulltext) {
-			$query = '+' . str_replace(' ', ' +', $query);
-		}
-		
-		// if using advanced, boolean operators, or paired "s, switch into boolean mode
-		$booleans_used = preg_match("/([\-\+~])([\w]+)/i", $query);
-		$advanced_search = (isset($params['advanced_search']) && $params['advanced_search']);
-		$quotes_used = (elgg_substr_count($query, '"') >= 2); 
-		
-		if (!$use_fulltext || $booleans_used || $advanced_search || $quotes_used) {
-			$options = 'IN BOOLEAN MODE';
-		} else {
-			// natural language mode is default and this keyword isn't supported in < 5.1
-			//$options = 'IN NATURAL LANGUAGE MODE';
-			$options = '';
-		}
-		
-		// if short query, use query expansion.
-		// @todo doesn't seem to be working well.
-//		if (elgg_strlen($query) < 5) {
-//			$options .= ' WITH QUERY EXPANSION';
-//		}
-		$query = sanitise_string($query);
-
-		$fields_str = implode(',', $fields);
-		$where = "(MATCH ($fields_str) AGAINST ('$query' $options))";
+	$likes = array();
+	$query = sanitise_string($query);
+	foreach ($fields as $field) {
+		$likes[] = "$field LIKE '%$query%'";
 	}
+	$likes_str = implode(' OR ', $likes);
+	$where = "($likes_str)";
 
 	return $where;
 }
