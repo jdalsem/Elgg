@@ -1,9 +1,3 @@
--- MySQL dump 10.13  Distrib 5.1.37, for debian-linux-gnu (i486)
---
--- Host: localhost    Database: elgg
--- ------------------------------------------------------
--- Server version	5.1.37-1ubuntu5
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -25,7 +19,7 @@ CREATE TABLE `prefix_access_collection_membership` (
   `user_guid` int(11) NOT NULL,
   `access_collection_id` int(11) NOT NULL,
   PRIMARY KEY (`user_guid`,`access_collection_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +36,7 @@ CREATE TABLE `prefix_access_collections` (
   PRIMARY KEY (`id`),
   KEY `owner_guid` (`owner_guid`),
   KEY `site_guid` (`site_guid`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,7 +61,7 @@ CREATE TABLE `prefix_annotations` (
   KEY `value_id` (`value_id`),
   KEY `owner_guid` (`owner_guid`),
   KEY `access_id` (`access_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,7 +78,7 @@ CREATE TABLE `prefix_api_users` (
   `active` int(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `api_key` (`api_key`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -98,7 +92,7 @@ CREATE TABLE `prefix_config` (
   `value` text NOT NULL,
   `site_guid` int(11) NOT NULL,
   PRIMARY KEY (`name`,`site_guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -111,7 +105,7 @@ CREATE TABLE `prefix_datalists` (
   `name` varchar(255) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -141,7 +135,7 @@ CREATE TABLE `prefix_entities` (
   KEY `access_id` (`access_id`),
   KEY `time_created` (`time_created`),
   KEY `time_updated` (`time_updated`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,7 +154,7 @@ CREATE TABLE `prefix_entity_relationships` (
   UNIQUE KEY `guid_one` (`guid_one`,`relationship`,`guid_two`),
   KEY `relationship` (`relationship`),
   KEY `guid_two` (`guid_two`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -176,7 +170,7 @@ CREATE TABLE `prefix_entity_subtypes` (
   `class` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `type` (`type`,`subtype`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -207,9 +201,8 @@ CREATE TABLE `prefix_groups_entity` (
   `description` text NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `name` (`name`(50)),
-  KEY `description` (`description`(50)),
-  FULLTEXT KEY `name_2` (`name`,`description`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `description` (`description`(50))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,7 +241,7 @@ CREATE TABLE `prefix_metadata` (
   KEY `value_id` (`value_id`),
   KEY `owner_guid` (`owner_guid`),
   KEY `access_id` (`access_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -262,7 +255,7 @@ CREATE TABLE `prefix_metastrings` (
   `string` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `string` (`string`(50))
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -275,9 +268,8 @@ CREATE TABLE `prefix_objects_entity` (
   `guid` bigint(20) unsigned NOT NULL,
   `title` text NOT NULL,
   `description` text NOT NULL,
-  PRIMARY KEY (`guid`),
-  FULLTEXT KEY `title` (`title`,`description`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -295,7 +287,7 @@ CREATE TABLE `prefix_private_settings` (
   UNIQUE KEY `entity_guid` (`entity_guid`,`name`),
   KEY `name` (`name`),
   KEY `value` (`value`(50))
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -323,7 +315,7 @@ CREATE TABLE `prefix_river` (
   KEY `object_guid` (`object_guid`),
   KEY `annotation_id` (`annotation_id`),
   KEY `posted` (`posted`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -338,9 +330,8 @@ CREATE TABLE `prefix_sites_entity` (
   `description` text NOT NULL,
   `url` varchar(255) NOT NULL,
   PRIMARY KEY (`guid`),
-  UNIQUE KEY `url` (`url`),
-  FULLTEXT KEY `name` (`name`,`description`,`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  UNIQUE KEY `url` (`url`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -372,7 +363,7 @@ CREATE TABLE `prefix_system_log` (
   KEY `access_id` (`access_id`),
   KEY `time_created` (`time_created`),
   KEY `river_key` (`object_type`,`object_subtype`,`event`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -421,10 +412,8 @@ CREATE TABLE `prefix_users_entity` (
   KEY `code` (`code`),
   KEY `last_action` (`last_action`),
   KEY `last_login` (`last_login`),
-  KEY `admin` (`admin`),
-  FULLTEXT KEY `name` (`name`),
-  FULLTEXT KEY `name_2` (`name`,`username`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `admin` (`admin`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -439,7 +428,7 @@ CREATE TABLE `prefix_users_sessions` (
   `data` mediumblob,
   PRIMARY KEY (`session`),
   KEY `ts` (`ts`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -450,5 +439,3 @@ CREATE TABLE `prefix_users_sessions` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2010-01-29 14:28:11
