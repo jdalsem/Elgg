@@ -223,13 +223,7 @@ function elgg_does_viewtype_fallback($viewtype) {
  * @since 1.8.3
  */
 function elgg_register_ajax_view($view) {
-	global $CONFIG;
-
-	if (!isset($CONFIG->allowed_ajax_views)) {
-		$CONFIG->allowed_ajax_views = array();
-	}
-
-	$CONFIG->allowed_ajax_views[$view] = true;
+	elgg_register_external_view($view, false);
 }
 
 /**
@@ -240,6 +234,78 @@ function elgg_register_ajax_view($view) {
  * @since 1.8.3
  */
 function elgg_unregister_ajax_view($view) {
+	elgg_unregister_external_view($view);
+}
+
+/**
+ * Registers a view as being available externally (i.e. via URL).
+ *
+ * @param string  $view      The name of the view.
+ * @param boolean $cacheable Whether this view can be cached.
+ * @since 1.9.0
+ */
+function elgg_register_external_view($view, $cacheable = false) {
+	global $CONFIG;
+
+	if (!isset($CONFIG->allowed_ajax_views)) {
+		$CONFIG->allowed_ajax_views = array();
+	}
+
+	$CONFIG->allowed_ajax_views[$view] = true;
+
+	if ($cacheable) {
+		if (!isset($CONFIG->views)) {
+			$CONFIG->views = new stdClass;
+		}
+	
+		if (!isset($CONFIG->views->simplecache)) {
+	                $CONFIG->views->simplecache = array();
+	        }
+	
+	        $CONFIG->views->simplecache[] = $view;
+	}
+}
+
+/**
+ * Check whether a view is registered as cacheable.
+ * 
+ * @param string $view The name of the view.
+ * @return boolean
+ * @access private
+ * @since 1.9.0
+ */
+function _elgg_is_view_cacheable($view) {
+	global $CONFIG;
+	return isset($CONFIG->views) &&
+		isset($CONFIG->views->simplecache) &&
+		in_array($view, $CONFIG->views->simplecache);
+}
+
+/**
+ * Get the correct URL for a given external view.
+ * 
+ * @param string $view The name of the view (e.g. 'css/elgg')
+ * @return string
+ * @since 1.9.0
+ */
+function elgg_get_external_view_url($view) {
+	$viewtype = elgg_get_viewtype();
+	if (elgg_is_simplecache_enabled() && _elgg_is_view_cacheable($view)) {
+		$lastcache = elgg_get_config('lastcache');
+		return elgg_normalize_url("/cache/$lastcache/$viewtype/$view");
+	} else {
+		return elgg_normalize_url("/ajax/view/$view?view=$viewtype");
+	}
+}
+
+/**
+ * Unregister a view for accessibility via URLs.
+ * 
+ * @param string $view The view name
+ * @return void
+ * @since 1.9.0
+ */
+function elgg_unregister_external_view($view) {
 	global $CONFIG;
 
 	if (isset($CONFIG->allowed_ajax_views[$view])) {
@@ -326,7 +392,7 @@ function elgg_set_view_location($view, $location, $viewtype = '') {
  * @return bool
  */
 function elgg_view_exists($view, $viewtype = '', $recurse = true) {
-	return ElggViewService::getInstance()->viewExists($view, $viewtype, $recurse);
+	return _elgg_services()->views->viewExists($view, $viewtype, $recurse);
 }
 
 /**
@@ -365,7 +431,7 @@ function elgg_view_exists($view, $viewtype = '', $recurse = true) {
  * @link http://docs.elgg.org/View
  */
 function elgg_view($view, $vars = array(), $bypass = false, $ignored = false, $viewtype = '') {
-	return ElggViewService::getInstance()->view($view, $vars, $bypass, $viewtype);
+	return _elgg_services()->views->renderView($view, $vars, $bypass, $viewtype);
 }
 
 /**
@@ -393,7 +459,7 @@ function elgg_view($view, $vars = array(), $bypass = false, $ignored = false, $v
  * @example views/extend.php
  */
 function elgg_extend_view($view, $view_extension, $priority = 501, $viewtype = '') {
-	ElggViewService::getInstance()->extendView($view, $view_extension, $priority, $viewtype);
+	_elgg_services()->views->extendView($view, $view_extension, $priority, $viewtype);
 }
 
 /**
@@ -406,7 +472,7 @@ function elgg_extend_view($view, $view_extension, $priority = 501, $viewtype = '
  * @since 1.7.2
  */
 function elgg_unextend_view($view, $view_extension) {
-	return ElggViewService::getInstance()->unextendView($view, $view_extension);
+	return _elgg_services()->views->unextendView($view, $view_extension);
 }
 
 /**
@@ -1114,7 +1180,7 @@ function elgg_view_form($action, $form_vars = array(), $body_vars = array()) {
 /**
  * View an item in a list
  *
- * @param object $item ElggEntity or ElggAnnotation
+ * @param ElggEntity|ElggAnnotation $item
  * @param array  $vars Additional parameters for the rendering
  *
  * @return string
@@ -1257,17 +1323,13 @@ function elgg_get_views($dir, $base) {
  */
 function elgg_view_tree($view_root, $viewtype = "") {
 	global $CONFIG;
-	static $treecache;
+	static $treecache = array();
 
 	// Get viewtype
 	if (!$viewtype) {
 		$viewtype = elgg_get_viewtype();
 	}
 
-	// Has the treecache been initialised?
-	if (!isset($treecache)) {
-		$treecache = array();
-	}
 	// A little light internal caching
 	if (!empty($treecache[$view_root])) {
 		return $treecache[$view_root];
@@ -1374,7 +1436,7 @@ function _elgg_views_minify($hook, $type, $content, $params) {
 		}
 	} elseif ($type == 'css') {
 		if (elgg_get_config('simplecache_minify_css')) {
-			$cssmin = new CSSmin();
+			$cssmin = new CSSMin();
 			return $cssmin->run($content);
 		}
 	}
@@ -1431,9 +1493,12 @@ function elgg_views_boot() {
 	global $CONFIG;
 
 	elgg_register_simplecache_view('css/ie');
-	elgg_register_simplecache_view('css/ie6');
 	elgg_register_simplecache_view('css/ie7');
+	elgg_register_simplecache_view('css/ie8');
 
+	elgg_register_simplecache_view('js/text.js');
+
+	elgg_register_js('require', '/vendors/requirejs/require-2.1.4.min.js', 'head'); 
 	elgg_register_js('jquery', '/vendors/jquery/jquery-1.7.2.min.js', 'head');
 	elgg_register_js('jquery-ui', '/vendors/jquery/jquery-ui-1.8.21.min.js', 'head');
 	elgg_register_js('jquery.form', '/vendors/jquery/jquery.form.js');
@@ -1442,6 +1507,7 @@ function elgg_views_boot() {
 	$elgg_js_url = elgg_get_simplecache_url('js', 'elgg');
 	elgg_register_js('elgg', $elgg_js_url, 'head');
 
+	elgg_load_js('require');
 	elgg_load_js('jquery');
 	elgg_load_js('jquery-ui');
 	elgg_load_js('elgg');

@@ -12,7 +12,7 @@
  *
  * @param string $text The input string
  *
- * @return string The output stirng with formatted links
+ * @return string The output string with formatted links
  **/
 function parse_urls($text) {
 	// @todo this causes problems with <attr = "val">
@@ -44,25 +44,12 @@ function parse_urls($text) {
 /**
  * Create paragraphs from text with line spacing
  *
- * @param string $pee The string
- * @deprecated Use elgg_autop instead
- * @todo Add deprecation warning in 1.9
- *
- * @return string
- **/
-function autop($pee) {
-	return elgg_autop($pee);
-}
-
-/**
- * Create paragraphs from text with line spacing
- *
  * @param string $string The string
  *
  * @return string
  **/
 function elgg_autop($string) {
-	return ElggAutoP::getInstance()->process($string);
+	return _elgg_services()->autoP->process($string);
 }
 
 /**
@@ -224,7 +211,6 @@ function elgg_normalize_url($url) {
 	$php_5_3_0_to_5_3_2 = version_compare(PHP_VERSION, '5.3.0', '>=') &&
 			version_compare(PHP_VERSION, '5.3.3', '<');
 
-	$validated = false;
 	if ($php_5_2_13_and_below || $php_5_3_0_to_5_3_2) {
 		$tmp_address = str_replace("-", "", $url);
 		$validated = filter_var($tmp_address, FILTER_VALIDATE_URL);
@@ -413,7 +399,7 @@ function _elgg_html_decode($string) {
 /**
  * Unit tests for Output
  *
- * @param sting  $hook   unit_test
+ * @param string $hook   unit_test
  * @param string $type   system
  * @param mixed  $value  Array of tests
  * @param mixed  $params Params

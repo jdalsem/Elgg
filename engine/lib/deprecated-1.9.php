@@ -34,6 +34,8 @@ function get_day_end($day = null, $month = null, $year = null) {
 /**
  * Return the notable entities for a given time period.
  *
+ * @todo this function also accepts an array(type => subtypes) for 3rd arg. Should we document this?
+ *
  * @param int     $start_time     The start time as a unix timestamp.
  * @param int     $end_time       The end time as a unix timestamp.
  * @param string  $type           The type of entity (eg "user", "object" etc)
@@ -878,4 +880,79 @@ function leave_group($group_guid, $user_guid) {
 	}
 
 	return false;
+}
+
+/**
+ * Create paragraphs from text with line spacing
+ *
+ * @param string $string The string
+ * @return string
+ * @deprecated 1.9 Use elgg_autop instead
+ **/
+function autop($string) {
+	elgg_deprecated_notice('autop has been deprecated in favor of elgg_autop', '1.9');
+	return elgg_autop($string);
+}
+
+/**
+ * Register a function as a web service method
+ * 
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_expose_function().
+ */
+function expose_function($method, $function, array $parameters = NULL, $description = "",
+		$call_method = "GET", $require_api_auth = false, $require_user_auth = false) {
+	elgg_deprecated_notice("expose_function() deprecated for the function elgg_ws_expose_function() in web_services plugin", 1.9);
+	if (!elgg_admin_notice_exists("elgg:ws:1.9")) {
+		elgg_add_admin_notice("elgg:ws:1.9", "The web services are now a plugin in Elgg 1.9.
+			You must enable this plugin and update your web services to use elgg_ws_expose_function().");
+	}
+
+	if (function_exists("elgg_ws_expose_function")) {
+		return elgg_ws_expose_function($method, $function, $parameters, $description, $call_method, $require_api_auth, $require_user_auth);
+	}
+}
+
+/**
+ * Unregister a web services method
+ *
+ * @param string $method The api name that was exposed
+ * @return void
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_unexpose_function().
+ */
+function unexpose_function($method) {
+	elgg_deprecated_notice("unexpose_function() deprecated for the function elgg_ws_unexpose_function() in web_services plugin", 1.9);
+	if (function_exists("elgg_ws_unexpose_function")) {
+		return elgg_ws_unexpose_function($method);
+	}
+}
+
+/**
+ * Registers a web services handler
+ *
+ * @param string $handler  Web services type
+ * @param string $function Your function name
+ * @return bool Depending on success
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_register_service_handler().
+ */
+function register_service_handler($handler, $function) {
+	elgg_deprecated_notice("register_service_handler() deprecated for the function elgg_ws_register_service_handler() in web_services plugin", 1.9);
+	if (function_exists("elgg_ws_register_service_handler")) {
+		return elgg_ws_register_service_handler($handler, $function);
+	}
+}
+
+/**
+ * Remove a web service
+ * To replace a web service handler, register the desired handler over the old on
+ * with register_service_handler().
+ *
+ * @param string $handler web services type
+ * @return void
+ * @deprecated 1.9 Enable the web services plugin and use elgg_ws_unregister_service_handler().
+ */
+function unregister_service_handler($handler) {
+	elgg_deprecated_notice("unregister_service_handler() deprecated for the function elgg_ws_unregister_service_handler() in web_services plugin", 1.9);
+	if (function_exists("elgg_ws_unregister_service_handler")) {
+		return elgg_ws_unregister_service_handler($handler);
+	}
 }
