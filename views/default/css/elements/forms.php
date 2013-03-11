@@ -6,6 +6,7 @@
  * @subpackage UI
  */
 ?>
+/* <style> /**/
 
 /* ***************************************
 	Form Elements
@@ -241,6 +242,10 @@ input[type="radio"] {
 	text-decoration: none;
 	color: #4690D6;
 }
+.ui-autocomplete a.ui-state-hover {
+	background-color: #eee;
+	display: block;
+}
 
 /* ***************************************
 	USER PICKER
@@ -251,6 +256,13 @@ input[type="radio"] {
 }
 .elgg-user-picker-list > li {
 	border-bottom: 1px dotted #ccc;
+}
+.elgg-user-picker.elgg-state-disabled > input,
+.elgg-user-picker.elgg-state-disabled > label {
+	display: none;
+}
+.elgg-user-picker-remove {
+	cursor: pointer;
 }
 
 /* ***************************************

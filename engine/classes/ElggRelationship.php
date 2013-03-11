@@ -104,14 +104,30 @@ class ElggRelationship extends ElggData implements
 		return get_relationship_url($this->id);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	public function toObject() {
+		$object = new stdClass();
+		$object->id = $this->id;
+		$object->subject_guid = $this->guid_one;
+		$object->relationship = $this->relationship;
+		$object->object_guid = $this->guid_two;
+		$object->time_created = date('c', $this->getTimeCreated());
+		$params = array('relationship' => $this);
+		return elgg_trigger_plugin_hook('to:object', 'relationship', $params, $object);
+	}
+
 	// EXPORTABLE INTERFACE ////////////////////////////////////////////////////////////
 
 	/**
 	 * Return an array of fields which can be exported.
 	 *
 	 * @return array
+	 * @deprecated 1.9 Use toObject()
 	 */
 	public function getExportableValues() {
+		elgg_deprecated_notice(__METHOD__ . ' has been deprecated by toObject()', 1.9);
 		return array(
 			'id',
 			'guid_one',
@@ -124,8 +140,10 @@ class ElggRelationship extends ElggData implements
 	 * Export this relationship
 	 *
 	 * @return array
+	 * @deprecated 1.9 Use toObject()
 	 */
 	public function export() {
+		elgg_deprecated_notice(__METHOD__ . ' has been deprecated', 1.9);
 		$uuid = get_uuid_from_object($this);
 		$relationship = new ODDRelationship(
 			guid_to_uuid($this->guid_one),
@@ -147,8 +165,10 @@ class ElggRelationship extends ElggData implements
 
 	 * @return bool
 	 * @throws ImportException|InvalidParameterException
+	 * @deprecated 1.9
 	 */
 	public function import(ODD $data) {
+		elgg_deprecated_notice(__METHOD__ . ' has been deprecated', 1.9);
 		if (!($data instanceof ODDRelationship)) {
 			throw new InvalidParameterException(elgg_echo('InvalidParameterException:UnexpectedODDClass'));
 		}

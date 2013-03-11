@@ -731,7 +731,6 @@ class ElggInstaller {
 			'views.php',
 			'access.php',
 			'system_log.php',
-			'export.php',
 			'configuration.php',
 			'database.php',
 			'sessions.php',
@@ -795,7 +794,7 @@ class ElggInstaller {
 				'location.php', 'mb_wrapper.php',
 				'memcache.php', 'metadata.php', 'metastrings.php',
 				'navigation.php', 'notification.php',
-				'objects.php', 'opendd.php', 'pagehandler.php',
+				'objects.php', 'pagehandler.php',
 				'pam.php', 'plugins.php',
 				'private_settings.php', 'relationships.php', 'river.php',
 				'sites.php', 'statistics.php', 'tags.php', 'user_settings.php',
@@ -1161,9 +1160,19 @@ class ElggInstaller {
 		foreach ($formVars as $field => $info) {
 			if ($info['required'] == TRUE && !$submissionVars[$field]) {
 				$name = elgg_echo("install:database:label:$field");
-				register_error("$name is required");
+				register_error(elgg_echo('install:error:requiredfield', array($name)));
 				return FALSE;
 			}
+		}
+
+		// according to postgres documentation: SQL identifiers and key words must
+		// begin with a letter (a-z, but also letters with diacritical marks and
+		// non-Latin letters) or an underscore (_). Subsequent characters in an
+		// identifier or key word can be letters, underscores, digits (0-9), or dollar signs ($).
+		// Refs #4994
+		if (!preg_match("/^[a-zA-Z_][\w]*$/", $submissionVars['dbprefix'])) {
+			register_error(elgg_echo('install:error:database_prefix'));
+			return FALSE;
 		}
 
 		return $this->checkDatabaseSettings(
@@ -1439,6 +1448,7 @@ class ElggInstaller {
 		datalist_set('version', get_version());
 		datalist_set('simplecache_enabled', 1);
 		datalist_set('system_cache_enabled', 1);
+		datalist_set('simplecache_lastupdate', time());
 
 		// new installations have run all the upgrades
 		$upgrades = elgg_get_upgrade_files($submissionVars['path'] . 'engine/lib/upgrades/');

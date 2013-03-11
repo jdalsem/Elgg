@@ -375,6 +375,17 @@ class ElggSite extends ElggEntity {
 		get_site_collections($this->getGUID(), $subtype, $limit, $offset);
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function prepareObject($object) {
+		$object = parent::prepareObject($object);
+		$object->name = $this->getDisplayName();
+		$object->description = $this->description;
+		unset($object->read_access);
+		return $object;
+	}
+
 	/*
 	 * EXPORTABLE INTERFACE
 	 */
@@ -383,6 +394,7 @@ class ElggSite extends ElggEntity {
 	 * Return an array of fields which can be exported.
 	 *
 	 * @return array
+	 * @deprecated 1.9 Use toObject()
 	 */
 	public function getExportableValues() {
 		return array_merge(parent::getExportableValues(), array(
@@ -425,7 +437,7 @@ class ElggSite extends ElggEntity {
 
 				if (!$this->isPublicPage()) {
 					if (!elgg_is_xhr()) {
-						$_SESSION['last_forward_from'] = current_page_url();
+						_elgg_services()->session->set('last_forward_from', current_page_url());
 					}
 					register_error(elgg_echo('loggedinrequired'));
 					forward();
@@ -458,7 +470,7 @@ class ElggSite extends ElggEntity {
 
 		// always allow index page
 		if ($url == elgg_get_site_url($this->guid)) {
-			return TRUE;
+			return true;
 		}
 
 		// default public pages
@@ -477,8 +489,7 @@ class ElggSite extends ElggEntity {
 			'upgrade\.php',
 			'css/.*',
 			'js/.*',
-			'cache/css/.*',
-			'cache/js/.*',
+			'cache/[0-9]+/js|css/.*',
 			'cron/.*',
 			'services/.*',
 		);
@@ -490,11 +501,11 @@ class ElggSite extends ElggEntity {
 		foreach (array_merge($defaults, $plugins) as $public) {
 			$pattern = "`^{$CONFIG->url}$public/*$`i";
 			if (preg_match($pattern, $url)) {
-				return TRUE;
+				return true;
 			}
 		}
 
 		// non-public page
-		return FALSE;
+		return false;
 	}
 }

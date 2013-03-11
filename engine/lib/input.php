@@ -118,15 +118,15 @@ function elgg_make_sticky_form($form_name) {
 
 	elgg_clear_sticky_form($form_name);
 
-	if (!isset($_SESSION['sticky_forms'])) {
-		$_SESSION['sticky_forms'] = array();
-	}
-	$_SESSION['sticky_forms'][$form_name] = array();
+	$session = _elgg_services()->session;
+	$data = $session->get('sticky_forms', array());
+	$data[$form_name] = array();
 
 	foreach ($_REQUEST as $key => $var) {
 		// will go through XSS filtering on the get function
-		$_SESSION['sticky_forms'][$form_name][$key] = $var;
+		$data[$form_name][$key] = $var;
 	}
+	$session->set('sticky_forms', $data);
 }
 
 /**
@@ -143,7 +143,10 @@ function elgg_make_sticky_form($form_name) {
  * @since 1.8.0
  */
 function elgg_clear_sticky_form($form_name) {
-	unset($_SESSION['sticky_forms'][$form_name]);
+	$session = _elgg_services()->session;
+	$data = $session->get('sticky_forms', array());
+	unset($data[$form_name]);
+	$session->set('sticky_forms', $data);
 }
 
 /**
@@ -156,7 +159,9 @@ function elgg_clear_sticky_form($form_name) {
  * @since 1.8.0
  */
 function elgg_is_sticky_form($form_name) {
-	return isset($_SESSION['sticky_forms'][$form_name]);
+	$session = _elgg_services()->session;
+	$data = $session->get('sticky_forms', array());
+	return isset($data[$form_name]);
 }
 
 /**
@@ -174,8 +179,10 @@ function elgg_is_sticky_form($form_name) {
  * @since 1.8.0
  */
 function elgg_get_sticky_value($form_name, $variable = '', $default = NULL, $filter_result = true) {
-	if (isset($_SESSION['sticky_forms'][$form_name][$variable])) {
-		$value = $_SESSION['sticky_forms'][$form_name][$variable];
+	$session = _elgg_services()->session;
+	$data = $session->get('sticky_forms', array());
+	if (isset($data[$form_name][$variable])) {
+		$value = $data[$form_name][$variable];
 		if ($filter_result) {
 			// XSS filter result
 			$value = filter_tags($value);
@@ -195,11 +202,13 @@ function elgg_get_sticky_value($form_name, $variable = '', $default = NULL, $fil
  * @since 1.8.0
  */
 function elgg_get_sticky_values($form_name, $filter_result = true) {
-	if (!isset($_SESSION['sticky_forms'][$form_name])) {
+	$session = _elgg_services()->session;
+	$data = $session->get('sticky_forms', array());
+	if (!isset($data[$form_name])) {
 		return array();
 	}
 
-	$values = $_SESSION['sticky_forms'][$form_name];
+	$values = $data[$form_name];
 	if ($filter_result) {
 		foreach ($values as $key => $value) {
 			// XSS filter result
@@ -220,7 +229,10 @@ function elgg_get_sticky_values($form_name, $filter_result = true) {
  * @since 1.8.0
  */
 function elgg_clear_sticky_value($form_name, $variable) {
-	unset($_SESSION['sticky_forms'][$form_name][$variable]);
+	$session = _elgg_services()->session;
+	$data = $session->get('sticky_forms', array());
+	unset($data[$form_name][$variable]);
+	$session->set('sticky_forms', $data);
 }
 
 /**
@@ -234,6 +246,7 @@ function elgg_clear_sticky_value($form_name, $variable) {
  *     match_on	   string all or array(groups|users|friends)
  *     match_owner int    0/1
  *     limit       int    default is 10
+ *     name        string default "members"
  *
  * @param array $page
  * @return string JSON string is returned and then exit
@@ -250,6 +263,8 @@ function input_livesearch_page_handler($page) {
 	if (!$q = get_input('term', get_input('q'))) {
 		exit;
 	}
+
+	$input_name = get_input('name', 'members');
 
 	$q = sanitise_string($q);
 
@@ -291,8 +306,7 @@ function input_livesearch_page_handler($page) {
 				if ($entities = get_data($query)) {
 					foreach ($entities as $entity) {
 						// @todo use elgg_get_entities (don't query in a loop!)
-						$entity = get_entity($entity->guid);
-						/* @var ElggUser $entity */
+						$entity = get_user($entity->guid);
 						if (!$entity) {
 							continue;
 						}
@@ -321,6 +335,10 @@ function input_livesearch_page_handler($page) {
 							'value' => $value,
 							'icon' => $icon,
 							'url' => $entity->getURL(),
+							'html' => elgg_view('input/userpicker/item', array(
+								'entity' => $entity,
+								'input_name' => $input_name,
+							)),
 						);
 						$results[$entity->name . rand(1, 100)] = $result;
 					}
@@ -391,8 +409,7 @@ function input_livesearch_page_handler($page) {
 				if ($entities = get_data($query)) {
 					foreach ($entities as $entity) {
 						// @todo use elgg_get_entities (don't query in a loop!)
-						$entity = get_entity($entity->guid);
-						/* @var ElggUser $entity */
+						$entity = get_user($entity->guid);
 						if (!$entity) {
 							continue;
 						}
@@ -415,6 +432,10 @@ function input_livesearch_page_handler($page) {
 							'value' => $entity->username,
 							'icon' => $icon,
 							'url' => $entity->getURL(),
+							'html' => elgg_view('input/userpicker/item', array(
+								'entity' => $entity,
+								'input_name' => $input_name,
+							)),
 						);
 						$results[$entity->name . rand(1, 100)] = $result;
 					}

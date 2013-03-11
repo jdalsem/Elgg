@@ -17,6 +17,17 @@ class ElggViewService {
 	protected $site_url_wrapper;
 	protected $user_wrapper;
 	protected $user_wrapped;
+	
+	/**
+	 * @see ElggViewService::fileExists
+	 * @var array
+	 */
+	protected $fileExistsCache = array();
+	
+	public function __construct(ElggPluginHookService $hooks, ElggLogger $logger) {
+		$this->hooks = $hooks;
+		$this->logger = $logger;
+	}
 
 	protected function getUserWrapper() {
 		$user = elgg_get_logged_in_user_entity();
@@ -30,6 +41,97 @@ class ElggViewService {
 		}
 		return $user;
 	}
+	
+	/**
+	 * @todo This seems overly complicated.
+	 */
+	public function autoregisterViews($view_base, $folder, $base_location_path, $viewtype) {
+		if ($handle = opendir($folder)) {
+			while ($view = readdir($handle)) {
+				if (!empty($view_base)) {
+					$view_base_new = $view_base . "/";
+				} else {
+					$view_base_new = "";
+				}
+
+				if (!in_array($view, array('.', '..', '.svn', 'CVS'))) {
+					if (is_dir($folder . "/" . $view)) {
+						$this->autoregisterViews($view_base_new . $view, $folder . "/" . $view,
+							$base_location_path, $viewtype);
+					} else {
+						$this->setViewLocation($view_base_new . basename($view, '.php'),
+							$base_location_path, $viewtype);
+					}
+				}
+			}
+			return TRUE;
+		}
+		return FALSE;
+	}
+	
+	public function getViewLocation($view, $viewtype = '') {
+		global $CONFIG;
+	
+		if (empty($viewtype)) {
+			$viewtype = elgg_get_viewtype();
+		}
+	
+		if (!isset($CONFIG->views->locations[$viewtype][$view])) {
+			if (!isset($CONFIG->viewpath)) {
+				return dirname(dirname(dirname(__FILE__))) . "/views/";
+			} else {
+				return $CONFIG->viewpath;
+			}
+		} else {
+			return $CONFIG->views->locations[$viewtype][$view];
+		}	
+	}
+	
+	public function setViewLocation($view, $location, $viewtype = '') {
+		global $CONFIG;
+
+		if (empty($viewtype)) {
+			$viewtype = 'default';
+		}
+	
+		if (!isset($CONFIG->views)) {
+			$CONFIG->views = new stdClass;
+		}
+	
+		if (!isset($CONFIG->views->locations)) {
+			$CONFIG->views->locations = array($viewtype => array($view => $location));
+	
+		} else if (!isset($CONFIG->views->locations[$viewtype])) {
+			$CONFIG->views->locations[$viewtype] = array($view => $location);
+	
+		} else {
+			$CONFIG->views->locations[$viewtype][$view] = $location;
+		}
+	}
+	
+	public function registerViewtypeFallback($viewtype) {
+		global $CONFIG;
+	
+		if (!isset($CONFIG->viewtype)) {
+			$CONFIG->viewtype = new stdClass;
+		}
+	
+		if (!isset($CONFIG->viewtype->fallback)) {
+			$CONFIG->viewtype->fallback = array();
+		}
+	
+		$CONFIG->viewtype->fallback[] = $viewtype;
+	}
+	
+	public function doesViewtypeFallback($viewtype) {
+		global $CONFIG;
+
+		if (isset($CONFIG->viewtype) && isset($CONFIG->viewtype->fallback)) {
+			return in_array($viewtype, $CONFIG->viewtype->fallback);
+		}
+	
+		return FALSE;
+	}
 
 	/**
 	 * @access private
@@ -39,7 +141,7 @@ class ElggViewService {
 		global $CONFIG;
 
 		if (!is_string($view) || !is_string($viewtype)) {
-			elgg_log("View and Viewtype in views must be a strings: $view", 'NOTICE');
+			$this->logger->log("View and Viewtype in views must be a strings: $view", 'NOTICE');
 			return '';
 		}
 		// basic checking for bad paths
@@ -48,7 +150,7 @@ class ElggViewService {
 		}
 
 		if (!is_array($vars)) {
-			elgg_log("Vars in views must be an array: $view", 'ERROR');
+			$this->logger->log("Vars in views must be an array: $view", 'ERROR');
 			$vars = array();
 		}
 
@@ -134,41 +236,24 @@ class ElggViewService {
 			$viewlist = array(500 => $view);
 		}
 	
-		// Start the output buffer, find the requested view file, and execute it
-		ob_start();
-	
+		$content = '';
 		foreach ($viewlist as $priority => $view) {
-
-			$view_location = elgg_get_view_location($view, $viewtype);
-			$view_file = "$view_location$viewtype/$view.php";
-
-			// try to include view
-			if (!file_exists($view_file) || !include($view_file)) {
-				// requested view does not exist
-				$error = "$viewtype/$view view does not exist.";
-	
-				// attempt to load default view
-				if ($viewtype !== 'default' && elgg_does_viewtype_fallback($viewtype)) {
-
-					$default_location = elgg_get_view_location($view, 'default');
-					$default_view_file = "{$default_location}default/$view.php";
-
-					if (file_exists($default_view_file) && include($default_view_file)) {
-						// default view found
-						$error .= " Using default/$view instead.";
-					} else {
-						// no view found at all
-						$error = "Neither $viewtype/$view nor default/$view view exists.";
-					}
+			try {
+				$content .= $this->renderView_($view, $vars, $viewtype);
+				continue;
+			} catch (Exception $e) {
+				$this->logger->log($e->getMessage(), 'NOTICE');
+			}
+			
+			// attempt to load default view
+			if ($viewtype !== 'default' && $this->doesViewtypeFallback($viewtype)) {
+				try {
+					$content .= $this->renderView_($view, $vars, 'default');
+				} catch (Exception $e) {
+					$this->logger->log($e->getMessage(), 'NOTICE');
 				}
-	
-				// log warning
-				elgg_log($error, 'NOTICE');
 			}
 		}
-	
-		// Save the output buffer into the $content variable
-		$content = ob_get_clean();
 	
 		// Plugin hook
 		$params = array('view' => $view_orig, 'vars' => $vars, 'viewtype' => $viewtype);
@@ -183,6 +268,34 @@ class ElggViewService {
 		}
 	
 		return $content;
+	}
+	
+	/**
+	 * Wrapper for file_exists() that caches false results (the stat cache only caches true results).
+	 * This saves us from many unneeded file stat calls when a common view uses a fallback.
+	 *
+	 * @param string $path
+	 * @return bool
+	 */
+	protected function fileExists($path) {
+		if (!isset($this->fileExistsCache[$path])) {
+			$this->fileExistsCache[$path] = file_exists($path);
+		}
+		return $this->fileExistsCache[$path];
+	}
+	
+	private function renderView_($view, array $vars, $viewtype) {
+		$view_location = $this->getViewLocation($view, $viewtype);
+
+		if ($this->fileExists("{$view_location}$viewtype/$view.php")) {
+			ob_start();
+			include("{$view_location}$viewtype/$view.php");
+			return ob_get_clean();
+		} else if ($this->fileExists("{$view_location}$viewtype/$view")) {
+			return file_get_contents("{$view_location}$viewtype/$view");
+		} else {
+			throw new Exception("$viewtype/$view view does not exist.");
+		}
 	}
 	
 	/**
@@ -207,7 +320,8 @@ class ElggViewService {
 			$location = $CONFIG->views->locations[$viewtype][$view];
 		}
 	
-		if (file_exists("{$location}{$viewtype}/{$view}.php")) {
+		if ($this->fileExists("{$location}$viewtype/$view.php") ||
+				$this->fileExists("{$location}$viewtype/$view")) {
 			return true;
 		}
 	
@@ -216,15 +330,15 @@ class ElggViewService {
 		if ($recurse && isset($CONFIG->views->extensions[$view])) {
 			foreach ($CONFIG->views->extensions[$view] as $view_extension) {
 				// do not recursively check to stay away from infinite loops
-				if (elgg_view_exists($view_extension, $viewtype, false)) {
+				if ($this->viewExists($view_extension, $viewtype, false)) {
 					return true;
 				}
 			}
 		}
 	
 		// Now check if the default view exists if the view is registered as a fallback
-		if ($viewtype != 'default' && elgg_does_viewtype_fallback($viewtype)) {
-			return elgg_view_exists($view, 'default');
+		if ($viewtype != 'default' && $this->doesViewtypeFallback($viewtype)) {
+			return $this->viewExists($view, 'default');
 		}
 	
 		return false;
@@ -286,5 +400,53 @@ class ElggViewService {
 		unset($CONFIG->views->extensions[$view][$priority]);
 	
 		return TRUE;
+	}
+	
+	public function registerCacheableView($view) {
+		global $CONFIG;
+		
+		if (!isset($CONFIG->views)) {
+			$CONFIG->views = new stdClass;
+		}
+
+		if (!isset($CONFIG->views->simplecache)) {
+			$CONFIG->views->simplecache = array();
+		}
+
+		$CONFIG->views->simplecache[$view] = true;
+	}
+	
+	public function isCacheableView($view) {
+		global $CONFIG;
+		
+		if (!isset($CONFIG->views)) {
+			$CONFIG->views = new stdClass;
+		}
+
+		if (!isset($CONFIG->views->simplecache)) {
+			$CONFIG->views->simplecache = array();
+		}
+		
+		if (isset($CONFIG->views->simplecache[$view])) {
+			return $CONFIG->views->simplecache[$view];	
+		} else {
+			$currentViewtype = elgg_get_viewtype();
+			$viewtypes = array($currentViewtype);
+			
+			if ($this->doesViewtypeFallback($currentViewtype) && $currentViewtype != 'default') {
+				$viewtypes[] = 'defaut';
+			}
+			
+			// If a static view file is found in any viewtype, it's considered cacheable
+			foreach ($viewtypes as $viewtype) {
+				$view_file = $this->getViewLocation($view, $viewtype) . "$viewtype/$view";
+				if ($this->fileExists($view_file)) {			
+					return true;
+				}
+			}
+			
+			// Assume not-cacheable by default
+			return false;
+		}
 	}
 }
