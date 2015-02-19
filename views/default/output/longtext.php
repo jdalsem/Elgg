@@ -8,6 +8,7 @@
  *
  * @uses $vars['value'] The text to display
  * @uses $vars['parse_urls'] Whether to turn urls into links. Default is true.
+ * @uses $vars['parse_emails'] Whether to turn emails into links. Default is the behaviour of 'parse_urls'.
  * @uses $vars['class']
  */
 
@@ -20,13 +21,19 @@ if ($additional_class) {
 }
 
 $parse_urls = elgg_extract('parse_urls', $vars, true);
+$parse_emails = elgg_extract('parse_emails', $vars, $parse_urls);
 unset($vars['parse_urls']);
+unset($vars['parse_emails']);
 
 $text = $vars['value'];
 unset($vars['value']);
 
 if ($parse_urls) {
 	$text = parse_urls($text);
+}
+
+if ($parse_emails) {
+	$text = elgg_parse_emails($text);
 }
 
 $text = filter_tags($text);
