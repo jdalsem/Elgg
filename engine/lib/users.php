@@ -765,15 +765,26 @@ function users_pagesetup() {
 	// topbar
 	if ($viewer) {
 		elgg_register_menu_item('topbar', array(
+			'name' => 'account',
+			'text' => elgg_echo('account'),
+			'href' => "#",
+			'priority' => 100,
+			'section' => 'alt',
+			'link_class' => 'elgg-topbar-dropdown',
+		));
+		
+		elgg_register_menu_item('topbar', array(
 			'name' => 'usersettings',
+			'parent_name' => 'account',
 			'href' => "settings/user/{$viewer->username}",
-			'text' => elgg_view_icon('settings') . elgg_echo('settings'),
-			'priority' => 500,
+			'text' => elgg_echo('settings'),
+			'priority' => 150,
 			'section' => 'alt',
 		));
 
 		elgg_register_menu_item('topbar', array(
 			'name' => 'logout',
+			'parent_name' => 'account',
 			'href' => "action/logout",
 			'text' => elgg_echo('logout'),
 			'is_action' => true,
@@ -785,7 +796,7 @@ function users_pagesetup() {
 
 /**
  * Set user icon file
- * 
+ *
  * @param string    $hook   "entity:icon:file"
  * @param string    $type   "user"
  * @param \ElggIcon $icon   Icon file

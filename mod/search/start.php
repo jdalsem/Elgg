@@ -36,8 +36,8 @@ function search_init() {
 	// add in CSS for search elements
 	elgg_extend_view('elgg.css', 'search/css');
 
-	// extend view for elgg topbar search box
-	elgg_extend_view('page/elements/header', 'search/header');
+	// extend view for elgg sidebar search box
+	elgg_extend_view('page/elements/sidebar', 'search/header', 0);
 
 	elgg_register_plugin_hook_handler('robots.txt', 'site', 'search_exclude_robots');
 }
@@ -415,7 +415,7 @@ function search_get_where_sql($table, $fields, $params, $use_fulltext = TRUE) {
 		// if using advanced, boolean operators, or paired "s, switch into boolean mode
 		$booleans_used = preg_match("/([\-\+~])([\w]+)/i", $query);
 		$advanced_search = (isset($params['advanced_search']) && $params['advanced_search']);
-		$quotes_used = (elgg_substr_count($query, '"') >= 2); 
+		$quotes_used = (elgg_substr_count($query, '"') >= 2);
 		
 		if (!$use_fulltext || $booleans_used || $advanced_search || $quotes_used) {
 			$options = 'IN BOOLEAN MODE';

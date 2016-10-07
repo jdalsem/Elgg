@@ -148,7 +148,7 @@ function elgg_unregister_menu_item($menu_name, $item_name) {
  *
  * @param string $menu_name The name of the menu
  * @param string $item_name The unique identifier for this menu item
- * 
+ *
  * @return bool
  * @since 1.8.0
  */
@@ -348,7 +348,7 @@ function elgg_prepare_breadcrumbs($hook, $type, $breadcrumbs, $params) {
 
 /**
  * Returns default filter tabs (All, Mine, Friends) for the user
- * 
+ *
  * @param string   $context  Context to be used to prefix tab URLs
  * @param string   $selected Name of the selected tab
  * @param ElggUser $user     User who owns the layout (defaults to logged in user)
@@ -671,6 +671,11 @@ function _elgg_login_menu_setup($hook, $type, $return, $params) {
  */
 function _elgg_extras_menu_setup($hook, $type, $return, $params) {
 
+	// non-members do not get visible links to RSS feeds
+	if (!elgg_is_logged_in()) {
+		return;
+	}
+	
 	if (!_elgg_has_rss_link()) {
 		return;
 	}

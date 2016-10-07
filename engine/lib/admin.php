@@ -314,9 +314,10 @@ function _elgg_admin_init() {
 	if (elgg_is_admin_logged_in()) {
 		elgg_register_menu_item('topbar', array(
 			'name' => 'administration',
+			'parent_name' => 'account',
 			'href' => 'admin',
-			'text' => elgg_view_icon('settings') . elgg_echo('admin'),
-			'priority' => 100,
+			'text' => elgg_echo('admin'),
+			'priority' => 110,
 			'section' => 'alt',
 		));
 	}

@@ -591,7 +591,6 @@ function _elgg_views_prepare_head($title) {
 	return $params;
 }
 
-
 /**
  * Add favicon link tags to HTML head
  *
@@ -650,6 +649,33 @@ function _elgg_views_prepare_favicon_links($hook, $type, $head_params, $params) 
 		'type' => 'image/png',
 		'href' => elgg_get_simplecache_url('favicon-128.png'),
 	);
+
+	return $head_params;
+}
+
+/**
+ * Add Apple touch icon link to HTML head
+ *
+ * @param string $hook        "head"
+ * @param string $type        "page"
+ * @param array  $head_params Head params
+ *                            <code>
+ *                               [
+ *                                  'title' => '',
+ *                                  'metas' => [],
+ *                                  'links' => [],
+ *                               ]
+ *                            </code>
+ * @param array  $params      Hook params
+ *
+ * @return array
+ */
+function _elgg_views_prepare_viewport($hook, $type, $head_params, $params) {
+
+	$head_params['metas']['viewport'] = [
+		'name' => 'viewport',
+		'content' => 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0',
+	];
 
 	return $head_params;
 }
@@ -749,7 +775,7 @@ function elgg_view_layout($layout_name, $vars = array()) {
 /**
  * Normalizes deprecated content layout $vars for use in default layout
  * Helper function to assist plugins transitioning to 3.0
- * 
+ *
  * @param array $vars Vars
  * @return array
  * @access private
@@ -1849,6 +1875,8 @@ function elgg_views_boot() {
 	// registered with high priority for BC
 	// prior to 2.2 registration used to take place in _elgg_views_prepare_head() before the hook was triggered
 	elgg_register_plugin_hook_handler('head', 'page', '_elgg_views_prepare_favicon_links', 1);
+	
+	elgg_register_plugin_hook_handler('head', 'page', '_elgg_views_prepare_viewport');
 	
 	// @todo the cache is loaded in load_plugins() but we need to know viewtypes earlier
 	$view_path = _elgg_services()->views->view_path;
