@@ -135,7 +135,7 @@ class EntityTable {
 	 * Returns a database row from the entities table.
 	 *
 	 * @see entity_row_to_elggstar()
-	 * 
+	 *
 	 * @tip Use get_entity() to return the fully loaded entity.
 	 *
 	 * @warning This will only return results if a) it exists, b) you have access to it.
@@ -199,7 +199,7 @@ class EntityTable {
 
 	/**
 	 * Update entity table row
-	 * 
+	 *
 	 * @param int      $guid Entity guid
 	 * @param stdClass $row  Updated data
 	 * @return int|false
@@ -235,7 +235,7 @@ class EntityTable {
 	 * @see get_entity_as_row()
 	 * @see add_subtype()
 	 * @see get_entity()
-	 * 
+	 *
 	 * @access private
 	 *
 	 * @param stdClass $row The row of the entry in the entities table.
@@ -1245,8 +1245,6 @@ class EntityTable {
 		if (!is_array($options['attribute_name_value_pairs'])) {
 			throw new InvalidArgumentException("attribute_name_value_pairs must be an array for elgg_get_entities_from_attributes()");
 		}
-
-		$wheres = array();
 
 		// check if this is an array of pairs or just a single pair.
 		$pairs = $options['attribute_name_value_pairs'];

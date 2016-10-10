@@ -83,7 +83,6 @@ class Config {
 	 * @return array
 	 */
 	public function getConnectionConfig($type = self::READ_WRITE) {
-		$config = array();
 		switch ($type) {
 			case self::READ:
 			case self::WRITE:
