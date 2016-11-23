@@ -12,7 +12,7 @@ if (typeof elgg != 'object') {
 JS;
 
 // For backwards compatibility...
-echo elgg_view('sprintf.js');
+// echo elgg_view('sprintf.js');
 
 // We use named AMD modules and inline them here in order to save HTTP requests,
 // as these modules will be required on each page
@@ -72,7 +72,7 @@ define('jquery-ui');
 // "jquery-ui/i18n/datepicker-LANG.min" and these views are mapped in /views.php
 define('jquery-ui/datepicker', jQuery.datepicker);
 
-define('elgg', ['jquery', 'languages/' + elgg.get_language()], function($, translations) {
+define('elgg', ['jquery', 'languages/' + elgg.get_language(), 'sprintf'], function($, translations) {
 	elgg.add_translation(elgg.get_language(), translations);
 
 	return elgg;

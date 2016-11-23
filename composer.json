@@ -21,6 +21,7 @@
         "elgg/data_views": "~1.0",
         "zendframework/zend-mail": "~2.4",
         "league/flysystem": "~1.0",
+        "bower-asset/cropper": "^2.1.0",
         "bower-asset/jquery": "^2.1.4",
         "bower-asset/jquery-ui": "~1.11.4",
         "bower-asset/text": "^2.0.4",
