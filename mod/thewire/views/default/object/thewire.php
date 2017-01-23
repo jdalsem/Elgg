@@ -7,7 +7,6 @@
 
 elgg_require_js('elgg/thewire');
 
-$full = elgg_extract('full_view', $vars, false);
 $post = elgg_extract('entity', $vars, false);
 
 if (!$post) {
@@ -44,7 +43,17 @@ $params = array(
 	'class' => 'thewire-post',
 );
 $params = $params + $vars;
-echo elgg_view('object/elements/summary', $params);
+$summary = elgg_view('object/elements/summary', $params);
+
+if (elgg_extract('full_view', $vars, false)) {
+
+	echo elgg_view('object/elements/full', array(
+		'entity' => $post,
+		'summary' => $summary,
+	));
+} else {
+	echo $summary;
+}
 
 if (!$post->reply) {
 	return;

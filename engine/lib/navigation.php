@@ -148,7 +148,7 @@ function elgg_unregister_menu_item($menu_name, $item_name) {
  *
  * @param string $menu_name The name of the menu
  * @param string $item_name The unique identifier for this menu item
- * 
+ *
  * @return bool
  * @since 1.8.0
  */
@@ -348,7 +348,7 @@ function elgg_prepare_breadcrumbs($hook, $type, $breadcrumbs, $params) {
 
 /**
  * Returns default filter tabs (All, Mine, Friends) for the user
- * 
+ *
  * @param string   $context  Context to be used to prefix tab URLs
  * @param string   $selected Name of the selected tab
  * @param ElggUser $user     User who owns the layout (defaults to logged in user)
@@ -483,40 +483,70 @@ function _elgg_site_menu_setup($hook, $type, $return, $params) {
 }
 
 /**
- * Add the comment and like links to river actions menu
+ * Add the delete link to river actions menu
  * @access private
  */
 function _elgg_river_menu_setup($hook, $type, $return, $params) {
-	if (elgg_is_logged_in()) {
-		$item = $params['item'];
-		/* @var \ElggRiverItem $item */
-		$object = $item->getObjectEntity();
-		// add comment link but annotations cannot be commented on
-		if ($item->annotation_id == 0) {
-			if ($object->canComment()) {
-				$options = array(
-					'name' => 'comment',
-					'href' => "#comments-add-{$object->guid}-{$item->id}",
-					'text' => elgg_view_icon('speech-bubble'),
-					'title' => elgg_echo('comment:this'),
-					'rel' => 'toggle',
-					'priority' => 50,
-				);
-				$return[] = \ElggMenuItem::factory($options);
-			}
+	if (!elgg_is_logged_in()) {
+		return;
+	}
+	
+	$item = $params['item'];
+	/* @var \ElggRiverItem $item */
+	
+	if ($item->canDelete()) {
+		$return[] = \ElggMenuItem::factory([
+			'name' => 'delete',
+			'href' => elgg_add_action_tokens_to_url("action/river/delete?id={$item->id}"),
+			'text' => elgg_echo('delete'),
+			'icon' => 'delete',
+			'title' => elgg_echo('river:delete'),
+			'confirm' => elgg_echo('deleteconfirm'),
+			'priority' => 200,
+		]);
+	}
+
+	return $return;
+}
+
+/**
+ * Add the comment link to social menu
+ * @access private
+ */
+function _elgg_social_menu_setup($hook, $type, $return, $params) {
+	if (!elgg_is_logged_in()) {
+		return;
+	}
+	
+	$object = elgg_extract('entity', $params);
+	
+	/* @var \ElggRiverItem $item */
+	$item = elgg_extract('item', $params);
+	if (empty($object)) {
+		if ($item->annotation_id != 0) {
+			return;
 		}
 		
-		if ($item->canDelete()) {
-			$options = array(
-				'name' => 'delete',
-				'href' => elgg_add_action_tokens_to_url("action/river/delete?id={$item->id}"),
-				'text' => elgg_view_icon('delete'),
-				'title' => elgg_echo('river:delete'),
-				'confirm' => elgg_echo('deleteconfirm'),
-				'priority' => 200,
-			);
-			$return[] = \ElggMenuItem::factory($options);
-		}
+		$object = $item->getObjectEntity();
+		
+		$href = "#comments-add-{$object->guid}-{$item->id}";
+		$rel = 'toggle';
+	} else {
+		$href = "#comments";
+		$rel = null;
+	}
+	
+	// add comment link but annotations cannot be commented on
+	if ($object->canComment()) {
+		$return[] = \ElggMenuItem::factory([
+			'name' => 'comment',
+			'href' => $href,
+			'icon' => 'speech-bubble',
+			'text' => elgg_echo('comment:this'),
+			'title' => elgg_echo('comment:this'),
+			'rel' => $rel,
+			'priority' => 50,
+		]);
 	}
 
 	return $return;
@@ -693,6 +723,7 @@ function _elgg_nav_init() {
 
 	elgg_register_plugin_hook_handler('prepare', 'menu:site', '_elgg_site_menu_setup');
 	elgg_register_plugin_hook_handler('register', 'menu:river', '_elgg_river_menu_setup');
+	elgg_register_plugin_hook_handler('register', 'menu:social', '_elgg_social_menu_setup');
 	elgg_register_plugin_hook_handler('register', 'menu:entity', '_elgg_entity_menu_setup');
 	elgg_register_plugin_hook_handler('register', 'menu:widget', '_elgg_widget_menu_setup');
 	elgg_register_plugin_hook_handler('register', 'menu:login', '_elgg_login_menu_setup');

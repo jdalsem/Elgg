@@ -5,32 +5,15 @@
  * @package ElggFile
  */
 
-$full = elgg_extract('full_view', $vars, FALSE);
-$file = elgg_extract('entity', $vars, FALSE);
+$full = elgg_extract('full_view', $vars, false);
+$file = elgg_extract('entity', $vars, false);
 
 if (!$file) {
-	return TRUE;
+	return;
 }
 
-$owner = $file->getOwnerEntity();
-$categories = elgg_view('output/categories', $vars);
-
-$by_line = elgg_view('page/elements/by_line', $vars);
-
-$comments_count = $file->countComments();
-//only display if there are commments
-if ($comments_count != 0) {
-	$text = elgg_echo("comments") . " ($comments_count)";
-	$comments_link = elgg_view('output/url', array(
-		'href' => $file->getURL() . '#comments',
-		'text' => $text,
-		'is_trusted' => true,
-	));
-} else {
-	$comments_link = '';
-}
-
-$subtitle = "$by_line $comments_link $categories";
+$subtitle = elgg_view('page/elements/by_line', $vars);
+$subtitle .= elgg_view('output/categories', $vars);
 
 $metadata = '';
 if (!elgg_in_context('widgets') && !elgg_in_context('gallery')) {

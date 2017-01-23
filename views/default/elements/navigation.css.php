@@ -10,7 +10,6 @@
 
 .elgg-anchor * {
 	display: inline;
-	vertical-align: middle;
 }
 
 .elgg-anchor * + .elgg-anchor-label {
@@ -562,7 +561,7 @@
 .elgg-menu-river > li > a {
 	display: block;
 }
-.elgg-menu-river > li > span {
+.elgg-menu-river > li > a > span {
 	vertical-align: baseline;
 }
 

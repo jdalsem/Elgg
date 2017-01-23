@@ -8,23 +8,24 @@
  *
  */
 
-elgg_push_context('owner_block');
-
 // groups and other users get owner block
 $owner = elgg_get_page_owner_entity();
-if ($owner instanceof ElggGroup || $owner instanceof ElggUser) {
-
-	$header = elgg_view_entity($owner, array('full_view' => false));
-
-	$body = elgg_view_menu('owner_block', array('entity' => $owner));
-
-	$body .= elgg_view('page/elements/owner_block/extend', $vars);
-
-	echo elgg_view('page/components/module', array(
-		'header' => $header,
-		'body' => $body,
-		'class' => 'elgg-owner-block',
-	));
+if (!($owner instanceof ElggGroup) && !($owner instanceof ElggGroup)) {
+	return;
 }
+
+elgg_push_context('owner_block');
+
+$header = elgg_view_entity($owner, array('full_view' => false));
+
+$body = elgg_view_menu('owner_block', array('entity' => $owner));
+
+$body .= elgg_view('page/elements/owner_block/extend', $vars);
+
+echo elgg_view('page/components/module', array(
+	'header' => $header,
+	'body' => $body,
+	'class' => 'elgg-owner-block',
+));
 
 elgg_pop_context();

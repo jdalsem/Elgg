@@ -179,14 +179,9 @@
 .elgg-module .elgg-list-river {
 	border-top: none;
 }
-.elgg-river-layout .elgg-list-river {
-	border-top: 1px solid #DCDCDC;
-}
 .elgg-list-river > li {
-	border-bottom: 1px solid #DCDCDC;
-}
-.elgg-river-item .elgg-pict {
-	margin-right: 20px;
+	border: 1px solid #DCDCDC;
+	margin-bottom: 20px;
 }
 .elgg-river-timestamp {
 	color: #666;
@@ -194,13 +189,45 @@
 	font-style: italic;
 	line-height: 1.2em;
 }
+.elgg-list-river > li > .elgg-image-block {
+	padding: 20px 20px 10px;
+}
+.elgg-river-social {
+	padding: 10px 20px;
+	background: #f0f0f0;
+	border-top: 1px solid #DCDCDC;
+}
+.elgg-river-responses > .elgg-list {
+	margin: 0px;
+}
+.elgg-river-responses > .elgg-list > li:last-child {
+	border-bottom: 0px;
+}
+
+.elgg-listing-full-body {
+	padding: 0 0 20px 0;
+}
+.elgg-listing-full-social {
+	padding: 10px 20px;
+	background: #f0f0f0;
+	border: 1px solid #DCDCDC;
+}
+
+.elgg-menu-social a {
+	color: #AAA;
+}
+.elgg-menu-social > li {
+	margin-right: 10px;
+}
+.elgg-menu-social > li:hover a {
+	color: #4690D6;
+	text-decoration: none;
+}
 
 .elgg-river-attachments,
 .elgg-river-message,
 .elgg-river-content {
-	border-left: 1px solid #DCDCDC;
-	margin: 8px 0 5px 0;
-	padding-left: 8px;
+	margin: 0 20px 20px;
 }
 .elgg-river-attachments .elgg-avatar,
 .elgg-river-attachments .elgg-icon {
@@ -220,14 +247,10 @@
 
 .elgg-river-comments {
 	position: relative;
-	margin: 20px 0 0 0;
-	border-top: 1px solid #DCDCDC;
 }
 .elgg-river-comments > li {
-    border-color: #DCDCDC;
-    border-style: solid;
-    border-width: 0 1px 1px 1px;
-	padding: 4px 10px;
+	padding: 0px 20px;
+	background: #F2F6F9;
 }
 .elgg-river-comments li .elgg-output {
 	padding-right: 5px;
@@ -243,86 +266,61 @@
 	font-size: 85%;
 }
 
-.elgg-river-item form {
-    border-color: #DCDCDC;
-    border-style: solid;
-    border-width: 0 1px 1px 1px;
+.elgg-list-river .elgg-item form {
 	padding: 6px;
 	height: auto;
 }
-.elgg-river-item input[type=text] {
+.elgg-list-river .elgg-item input[type=text] {
 	width: 78%;
 }
-.elgg-river-item input[type=submit] {
+.elgg-list-river .elgg-item input[type=submit] {
 	margin: 0 0 0 10px;
 }
 
 /* **************************************
 	Comments (from elgg_view_comments)
 ************************************** */
-.elgg-comments {
-	margin-top: 25px;
-}
 .elgg-comments .elgg-list {
 	position: relative;
-    border-top: 1px solid #DCDCDC;
+	margin: 0px;
 }
 .elgg-comments .elgg-list > li {
     border-color: #DCDCDC;
     border-style: solid;
     border-width: 0 1px 1px 1px;
-	padding: 4px 10px;
+	padding: 0px 20px;
 }
 .elgg-comments > form {
 	margin-top: 15px;
 }
 
 /* Comment highlighting that automatically fades away */
-.elgg-comments .elgg-state-highlight,
-.elgg-river-comments .elgg-state-highlight {
+.elgg-comments .elgg-state-highlight {
 	-webkit-animation: comment-highlight 5s; /* Chrome, Safari, Opera */
 	animation: comment-highlight 5s;
 }
+.elgg-river-comments .elgg-state-highlight {
+	-webkit-animation: comment-highlight 5s; /* Chrome, Safari, Opera */
+	animation: comment-highlight-river 5s;
+}
+
 /* Chrome, Safari, Opera */
 @-webkit-keyframes comment-highlight {
 	from {background: #dff2ff;}
-	to {background: white;}
+	to {background: #FFF;}
+}
+@-webkit-keyframes comment-highlight-river {
+	from {background: #dff2ff;}
+	to {background: #F2F6F9;}
 }
 /* Standard syntax */
 @keyframes comment-highlight {
 	from {background: #dff2ff;}
-	to {background: white;}
+	to {background: #FFF;}
 }
-
-/* **************************************
-	Comments triangle
-************************************** */
-.elgg-comments .elgg-list:after,
-.elgg-comments .elgg-list:before,
-.elgg-river-comments:after,
-.elgg-river-comments:before {
-	bottom: 100%;
-	left: 30px;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-}
-.elgg-comments .elgg-list:after,
-.elgg-river-comments:after {
-	border-color: rgba(238, 238, 238, 0);
-	border-bottom-color: #FFF;
-	border-width: 8px;
-	margin-left: -8px;
-}
-.elgg-comments .elgg-list:before,
-.elgg-river-comments:before {
-	border-color: rgba(220, 220, 220, 0);
-	border-bottom-color: #DCDCDC;
-	border-width: 9px;
-	margin-left: -9px;
+@keyframes comment-highlight-river {
+	from {background: #dff2ff;}
+	to {background: #F2F6F9;}
 }
 
 /* ***************************************
@@ -344,10 +342,10 @@
 <?= elgg_view('elements/components/tags.css', $vars) ?>
 
 @media (max-width: 820px) {
-	.elgg-river-item input[type=text] {
+	.elgg-list-river .elgg-item input[type=text] {
 		width: 100%;
 	}
-	.elgg-river-item input[type=submit] {
+	.elgg-list-river .elgg-item input[type=submit] {
 		margin: 5px 0 0 0;
 	}
 }

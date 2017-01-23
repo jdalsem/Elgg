@@ -1,7 +1,7 @@
 <?php
 /**
  * User's wire posts
- * 
+ *
  */
 
 $owner = elgg_get_page_owner_entity();
@@ -27,6 +27,7 @@ $content .= elgg_list_entities(array(
 	'subtype' => 'thewire',
 	'owner_guid' => $owner->guid,
 	'limit' => get_input('limit', 15),
+	'full_view' => true,
 ));
 
 $body = elgg_view_layout('content', array(

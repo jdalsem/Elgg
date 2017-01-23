@@ -1,10 +1,10 @@
 <?php
 /**
  * Core CSS
- * 
+ *
  * This file holds all the complicated/hacky stuff that you really
  * shouldn't touch or override unless you're sure you know what you're doing.
- * 
+ *
  * Provides classes that implement cross-browser support for the following features:
  *   * clearfix
  *   * fluid-width content area that doesn't wrap around floats
@@ -32,7 +32,7 @@
 	display: block;
 	height: 0;
 	clear: both;
-	visibility: hidden;	
+	visibility: hidden;
 }
 
 /* Fluid width container that does not wrap floats */
@@ -98,6 +98,18 @@
 
 /* Allow inline image blocks in horizontal menus */
 .elgg-menu-hz .elgg-body:after { content: '.'; }
+
+.elgg-menu-icon-only > li > * > .elgg-anchor-label {
+	display: none;
+}
+.elgg-menu-text-only > li > * > .elgg-anchor-icon {
+	display: none;
+}
+
+.elgg-menu-icon-only > li > .elgg-anchor-label,
+.elgg-menu-icon-only > li > a > .elgg-anchor-label {
+	display: none;
+}
 
 <?php //@todo This isn't going to work as-is.  Needs testing ?>
 /* Inline block */

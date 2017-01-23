@@ -44,6 +44,23 @@ $content = elgg_view('object/elements/summary/content', $vars);
 $summary = $metadata . $title . $subtitle . $tags . $extensions . $content;
 
 $icon = elgg_extract('icon', $vars);
+if (empty($icon) && $icon !== false) {
+	$icon_size = 'tiny';
+	if (elgg_extract('full_view', $vars, false)) {
+		$icon_size = 'small';
+	}
+	
+	$entity = elgg_extract('entity', $vars);
+	if ($entity instanceof ElggObject) {
+		$owner = $entity->getOwnerEntity();
+		if ($owner) {
+			$icon = elgg_view_entity_icon($owner, $icon_size);
+		}
+	} elseif ($entity instanceof ElggEntity) {
+		$icon = elgg_view_entity_icon($entity, $icon_size);
+	}
+}
+
 if (isset($icon)) {
 	$params = (array) elgg_extract('image_block_vars', $vars, []);
 	$class = elgg_extract_class($params);

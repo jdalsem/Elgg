@@ -7,13 +7,17 @@
  */
 
 // allow river views to override the response content
-$responses = elgg_extract('responses', $vars, false);
-if ($responses) {
+$responses = elgg_extract('responses', $vars, '');
+if ($responses == false) {
+	return;
+}
+
+if ($responses !== '') {
 	echo $responses;
 	return;
 }
 
-$item = $vars['item'];
+$item = elgg_extract('item', $vars);
 /* @var ElggRiverItem $item */
 $object = $item->getObjectEntity();
 

@@ -10,12 +10,12 @@
  */
 
 
-$full = elgg_extract('full_view', $vars, FALSE);
-$page = elgg_extract('entity', $vars, FALSE);
-$revision = elgg_extract('revision', $vars, FALSE);
+$full = elgg_extract('full_view', $vars, false);
+$page = elgg_extract('entity', $vars, false);
+$revision = elgg_extract('revision', $vars, false);
 
 if (!$page) {
-	return TRUE;
+	return;
 }
 
 // pages used to use Public for write access
@@ -54,20 +54,7 @@ $date = elgg_view_friendly_time($annotation->time_created);
 $editor_text = elgg_echo('pages:strapline', array($date, $editor_link));
 $categories = elgg_view('output/categories', $vars);
 
-$comments_count = $page->countComments();
-//only display if there are commments
-if ($comments_count != 0 && !$revision) {
-	$text = elgg_echo("comments") . " ($comments_count)";
-	$comments_link = elgg_view('output/url', array(
-		'href' => $page->getURL() . '#comments',
-		'text' => $text,
-		'is_trusted' => true,
-	));
-} else {
-	$comments_link = '';
-}
-
-$subtitle = "$editor_text $comments_link $categories";
+$subtitle = "$editor_text $categories";
 
 $metadata = '';
 // do not show the metadata and controls in widget view

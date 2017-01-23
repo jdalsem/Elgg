@@ -24,11 +24,10 @@ unset($vars['class']);
 $header = elgg_view('object/elements/full/header', $vars);
 $body = elgg_view('object/elements/full/body', $vars);
 $attachments = elgg_view('object/elements/full/attachments', $vars);
+$social = elgg_view('object/elements/full/social', $vars);
 $responses = elgg_view('object/elements/full/responses', $vars);
 
 echo elgg_format_element('div', [
 	'class' => $class,
 	'data-guid' => $entity->guid,
-		], $header . $body . $attachments . $responses);
-
-
+], $header . $body . $attachments . $social . $responses);
