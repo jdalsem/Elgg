@@ -77,16 +77,16 @@ class EntityIconService {
 	 * @return bool
 	 */
 	public function saveIconFromUploadedFile(ElggEntity $entity, $input_name, $type = 'icon', array $coords = []) {
-		$files = $this->request->files;
-		if (!$files->has($input_name)) {
+		$files = _elgg_services()->uploads->getUploadedFiles($input_name);
+		if (empty($files)) {
 			return false;
 		}
-
-		$input = $files->get($input_name);
+		
+		$input = $files[0];
 		if (!$input instanceof UploadedFile || !$input->isValid()) {
 			return false;
 		}
-
+		
 		$tmp_filename = time() . $input->getClientOriginalName();
 		$tmp = new ElggFile();
 		$tmp->owner_guid = $entity->guid;
