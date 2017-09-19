@@ -49,11 +49,10 @@ class ElggCoreAccessSQLTest extends LegacyIntegrationTestCase {
 
 		$sql = _elgg_get_access_where_sql();
 
-		$friends_clause = $this->getFriendsClause($this->user->guid, 'e');
 		$owner_clause = $this->getOwnerClause($this->user->guid, 'e');
 		$access_clause = $this->getLoggedInAccessListClause('e');
 
-		$ans = "(($friends_clause OR $owner_clause OR $access_clause) AND (e.enabled = 'yes'))";
+		$ans = "(($owner_clause OR $access_clause) AND (e.enabled = 'yes'))";
 
 		$this->assertSqlEqual($ans, $sql, "$sql does not match $ans");
 	}
@@ -63,10 +62,9 @@ class ElggCoreAccessSQLTest extends LegacyIntegrationTestCase {
 			'table_alias' => 'foo',
 		]);
 
-		$friends_clause = $this->getFriendsClause($this->user->guid, 'foo');
 		$owner_clause = $this->getOwnerClause($this->user->guid, 'foo');
 		$access_clause = $this->getLoggedInAccessListClause('foo');
-		$ans = "(($friends_clause OR $owner_clause OR $access_clause) AND (foo.enabled = 'yes'))";
+		$ans = "(($owner_clause OR $access_clause) AND (foo.enabled = 'yes'))";
 
 		$this->assertSqlEqual($ans, $sql, "$sql does not match $ans");
 
@@ -76,10 +74,9 @@ class ElggCoreAccessSQLTest extends LegacyIntegrationTestCase {
 			'table_alias' => '',
 		]);
 
-		$friends_clause = $this->getFriendsClause($this->user->guid, '');
 		$owner_clause = $this->getOwnerClause($this->user->guid, '');
 		$access_clause = $this->getLoggedInAccessListClause('');
-		$ans = "(($friends_clause OR $owner_clause OR $access_clause) AND (enabled = 'yes'))";
+		$ans = "(($owner_clause OR $access_clause) AND (enabled = 'yes'))";
 
 		$this->assertSqlEqual($ans, $sql, "$sql does not match $ans");
 	}
@@ -89,10 +86,9 @@ class ElggCoreAccessSQLTest extends LegacyIntegrationTestCase {
 			'owner_guid_column' => 'unit_test',
 		]);
 
-		$friends_clause = $this->getFriendsClause($this->user->guid, 'e', 'unit_test');
 		$owner_clause = $this->getOwnerClause($this->user->guid, 'e', 'unit_test');
 		$access_clause = $this->getLoggedInAccessListClause('e');
-		$ans = "(($friends_clause OR $owner_clause OR $access_clause) AND (e.enabled = 'yes'))";
+		$ans = "(($owner_clause OR $access_clause) AND (e.enabled = 'yes'))";
 
 		$this->assertSqlEqual($ans, $sql, "$sql does not match $ans");
 	}
@@ -226,21 +222,6 @@ class ElggCoreAccessSQLTest extends LegacyIntegrationTestCase {
 		$session->removeLoggedInUser();
 
 		$ia = elgg_set_ignore_access(true);
-		$owner->addFriend($viewer->guid);
-		$object->access_id = ACCESS_FRIENDS;
-		$object->save();
-		elgg_set_ignore_access($ia);
-
-		$this->assertFalse(has_access_to_entity($object));
-		$this->assertTrue(has_access_to_entity($object, $viewer));
-		$this->assertTrue(has_access_to_entity($object, $owner));
-
-		$session->setLoggedInUser($viewer);
-		$this->assertTrue(has_access_to_entity($object));
-		$this->assertTrue(has_access_to_entity($object, $viewer));
-		$this->assertTrue(has_access_to_entity($object, $owner));
-
-		$ia = elgg_set_ignore_access(true);
 		$owner->delete();
 		$object->delete();
 		elgg_set_ignore_access($ia);
@@ -259,17 +240,6 @@ class ElggCoreAccessSQLTest extends LegacyIntegrationTestCase {
 		$sql2 = $this->normalizeSql($sql2);
 
 		return $this->assertEquals($sql1, $sql2, $message);
-	}
-
-	protected function getFriendsClause($user_guid, $table_alias, $owner_guid = 'owner_guid') {
-		$CONFIG = _elgg_config();
-		$table_alias = $table_alias ? $table_alias . '.' : '';
-
-		return "{$table_alias}access_id = " . ACCESS_FRIENDS . "
-			AND {$table_alias}{$owner_guid} IN (
-				SELECT guid_one FROM {$CONFIG->dbprefix}entity_relationships
-				WHERE relationship = 'friend' AND guid_two = $user_guid
-			)";
 	}
 
 	protected function getOwnerClause($user_guid, $table_alias, $owner_guid = 'owner_guid') {

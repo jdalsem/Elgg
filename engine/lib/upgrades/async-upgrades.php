@@ -9,4 +9,9 @@
 return [
 	\Elgg\Upgrades\AlterDatabaseToMultiByteCharset::class,
 	\Elgg\Upgrades\SetSecurityConfigDefaults::class,
+
+	\Elgg\Upgrades\CreateUserFriendsACL::class,
+	\Elgg\Upgrades\EntitiesChangeFriendsAccessToACL::class,
+	\Elgg\Upgrades\AnnotationsChangeFriendsAccessToACL::class,
+	\Elgg\Upgrades\RiverChangeFriendsAccessToACL::class,
 ];

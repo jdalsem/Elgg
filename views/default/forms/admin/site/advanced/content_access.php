@@ -3,11 +3,10 @@
  * Advanced site settings, content access section.
  */
 
-$field = [
+$body = elgg_view_field([
 	'#type' => 'access',
 	'options_values' => [
 		ACCESS_PRIVATE => elgg_echo('access:label:private'),
-		ACCESS_FRIENDS => elgg_echo('access:label:friends'),
 		ACCESS_LOGGED_IN => elgg_echo('access:label:logged_in'),
 		ACCESS_PUBLIC => elgg_echo('access:label:public'),
 	],
@@ -15,13 +14,7 @@ $field = [
 	'#label' => elgg_echo('installation:sitepermissions'),
 	'#help' => elgg_echo('admin:site:access:warning'),
 	'value' => elgg_get_config('default_access'),
-];
-
-if (!elgg_is_active_plugin('friends')) {
-	unset($field['options_values'][ACCESS_FRIENDS]);
-}
-
-$body = elgg_view_field($field);
+]);
 
 $body .= elgg_view_field([
 	'#type' => 'checkbox',

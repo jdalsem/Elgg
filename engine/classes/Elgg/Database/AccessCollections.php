@@ -321,13 +321,6 @@ class AccessCollections {
 		if ($options['ignore_access']) {
 			$clauses['ors']['ignore_access'] = '1 = 1';
 		} else if ($options['user_guid']) {
-			// include content of user's friends
-			$clauses['ors']['friends_access'] = "$table_alias{$options['access_column']} = " . ACCESS_FRIENDS . "
-				AND $table_alias{$options['owner_guid_column']} IN (
-					SELECT guid_one FROM {$prefix}entity_relationships
-					WHERE relationship = 'friend' AND guid_two = {$options['user_guid']}
-				)";
-
 			// include user's content
 			$clauses['ors']['owner_access'] = "$table_alias{$options['owner_guid_column']} = {$options['user_guid']}";
 		}
@@ -457,7 +450,6 @@ class AccessCollections {
 		if ($cache[$hash]) {
 			$access_array = $cache[$hash];
 		} else {
-			// @todo is there such a thing as public write access?
 			$access_array = [
 				ACCESS_PRIVATE => $this->getReadableAccessLevel(ACCESS_PRIVATE),
 				ACCESS_LOGGED_IN => $this->getReadableAccessLevel(ACCESS_LOGGED_IN),
@@ -467,7 +459,7 @@ class AccessCollections {
 			$collections = $this->getEntityCollections($user_guid);
 			if ($collections) {
 				foreach ($collections as $collection) {
-					$access_array[$collection->id] = $collection->name;
+					$access_array[$collection->id] = $this->getReadableAccessLevel($collection->id);
 				}
 			}
 
@@ -480,7 +472,28 @@ class AccessCollections {
 			'user_id' => $user_guid,
 			'input_params' => $input_params,
 		];
-		return $this->hooks->trigger('access:collections:write', 'user', $options, $access_array);
+		$access_array = $this->hooks->trigger('access:collections:write', 'user', $options, $access_array);
+		
+		// move private to first in array
+		if (isset($access_array[ACCESS_PRIVATE])) {
+			$temp = [ACCESS_PRIVATE => $access_array[ACCESS_PRIVATE]];
+			unset($access_array[ACCESS_PRIVATE]);
+			$access_array = $temp + $access_array;
+		}
+		
+		// move logged in and public to the end of the array
+		foreach ([ACCESS_LOGGED_IN, ACCESS_PUBLIC] as $access) {
+			if (!isset($access_array[$access])) {
+				continue;
+			}
+		
+			$temp = $access_array[$access];
+			unset($access_array[$access]);
+			$access_array[$access] = $temp;
+		}
+		
+		
+		return $access_array;
 	}
 
 	/**
@@ -531,12 +544,18 @@ class AccessCollections {
 	 *
 	 * @param string $name       The name of the collection.
 	 * @param int    $owner_guid The GUID of the owner (default: currently logged in user).
+	 * @param string $subtype    The subtype indicates the usage of the acl
 	 *
 	 * @return int|false The collection ID if successful and false on failure.
 	 */
-	public function create($name, $owner_guid = 0) {
+	public function create($name, $owner_guid = 0, $subtype = null) {
 		$name = trim($name);
 		if (empty($name)) {
+			return false;
+		}
+		
+		$subtype = trim($subtype);
+		if (strlen($subtype) > 255) {
 			return false;
 		}
 
@@ -547,11 +566,13 @@ class AccessCollections {
 		$query = "
 			INSERT INTO {$this->table}
 			SET name = :name,
+			    subtype = :subtype,
 				owner_guid = :owner_guid
 		";
 
 		$params = [
 			':name' => $name,
+			':subtype' => $subtype,
 			':owner_guid' => (int) $owner_guid,
 		];
 
@@ -566,6 +587,7 @@ class AccessCollections {
 			'collection_id' => $id,
 			'name' => $name,
 			'owner_guid' => $owner_guid,
+			'subtype' => $subtype,
 		];
 
 		if (!$this->hooks->trigger('access:collections:addcollection', 'collection', $hook_params, true)) {
@@ -860,6 +882,28 @@ class AccessCollections {
 
 		return $this->db->getData($query, $callback, $params);
 	}
+	
+	/**
+	 * Returns access collections owned by the user filtered by a subtype
+	 *
+	 * @param int    $owner_guid GUID of the owner
+	 * @param string $subtype    Subtype of the collection
+	 * @return ElggAccessCollection[]|false
+	 */
+	public function getEntityCollectionsBySubtype($owner_guid, $subtype) {
+		$callback = [$this, 'rowToElggAccessCollection'];
+		$query = "
+			SELECT * FROM {$this->table}
+				WHERE owner_guid = :owner_guid
+				AND subtype = :subtype
+				ORDER BY name ASC
+		";
+		$params = [
+			':owner_guid' => (int) $owner_guid,
+			':subtype' => $subtype,
+		];
+		return $this->db->getData($query, $callback, $params);
+	}
 
 	/**
 	 * Get members of an access collection
@@ -927,7 +971,6 @@ class AccessCollections {
 		// Check if entity access id is a defined global constant
 		$access_array = [
 			ACCESS_PRIVATE => $translator->translate('access:label:private'),
-			ACCESS_FRIENDS => $translator->translate('access:label:friends'),
 			ACCESS_LOGGED_IN => $translator->translate('access:label:logged_in'),
 			ACCESS_PUBLIC => $translator->translate('access:label:public'),
 		];

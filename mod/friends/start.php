@@ -1,7 +1,6 @@
 <?php
 
 function elgg_friends_plugin_init() {
-	elgg_register_plugin_hook_handler('access:collections:write', 'user', '_elgg_friends_write_access', 1);
 	elgg_register_plugin_hook_handler('filter_tabs', 'all', '_elgg_friends_filter_tabs', 1);
 
 	elgg_register_event_handler('create', 'relationship', '_elgg_send_friend_notification');
@@ -205,38 +204,6 @@ function _elgg_send_friend_notification($event, $type, $object) {
 }
 
 /**
- * Add ACCESS_FRIENDS to the available access levels
- *
- * @param string $hook         "access:collections:write"
- * @param string $type         "user"
- * @param array  $access_array Access array
- * @param array  $params       Hook params
- *
- * @return array
- */
-function _elgg_friends_write_access($hook, $type, $access_array, $params) {
-
-	// rebuild array, putting friends 1st or 2nd
-	$ret = [];
-
-	// private exists, it goes first
-	if (isset($access_array[ACCESS_PRIVATE])) {
-		$ret[ACCESS_PRIVATE] = $access_array[ACCESS_PRIVATE];
-		unset($access_array[ACCESS_PRIVATE]);
-	}
-
-	// friends
-	$ret[ACCESS_FRIENDS] = get_readable_access_level(ACCESS_FRIENDS);
-
-	// rest
-	foreach ($access_array as $key => $value) {
-		$ret[$key] = $value;
-	}
-
-	return $ret;
-}
-
-/**
  * Add "Friends" tab to common filter
  *
  * @param string $hook   "filter_tabs"
@@ -265,7 +232,6 @@ function _elgg_friends_filter_tabs($hook, $type, $items, $params) {
 	]);
 	return $items;
 }
-
 
 /**
  * Returns widget URLS used in widget titles
