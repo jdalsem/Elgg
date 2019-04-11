@@ -87,13 +87,13 @@ class MigrateFriendsACL implements AsynchronousUpgrade {
 		$check_friends_sub = $check_friends->subquery('access_collection_membership', 'mem');
 		$check_friends_sub->select('mem.user_guid')
 			->join('mem', 'access_collections', 'acl', 'acl.id = mem.access_collection_id')
-			->where('acl.owner_guid = e.guid')
-			->andWhere('acl.subtype = "friends"');
+			->where($check_friends->compare('acl.owner_guid', '=', 'e.guid'))
+			->andWhere($check_friends->compare('acl.subtype', '=', 'friends', ELGG_VALUE_STRING));
 		
-		$check_friends->select('count(r.guid_two) as total');
-		$check_friends->join('e', 'entity_relationships', 'r', 'e.guid = r.guid_one AND r.relationship = "friend"');
-		$check_friends->where($check_friends->compare('e.type', '=', 'user', ELGG_VALUE_STRING));
-		$check_friends->andWhere($check_friends->compare('r.guid_two', 'NOT IN', $check_friends_sub->getSQL()));
+		$check_friends->select('count(r.guid_two) AS total');
+		$check_friends->joinRelationshipTable('e', 'guid', 'friend', true, 'inner', 'r');
+		$check_friends->where($check_friends->compare('e.type', '=', 'user', ELGG_VALUE_STRING))
+			->andWhere($check_friends->compare('r.guid_two', 'NOT IN', $check_friends_sub->getSQL()));
 		
 		$total = $check_friends->execute()->fetchColumn();
 		if ($total) {
@@ -102,9 +102,10 @@ class MigrateFriendsACL implements AsynchronousUpgrade {
 		
 		// check if annotations have friends acl
 		$count_annotation = \Elgg\Database\Select::fromTable('annotations', 'a');
-		$count_annotation->select('count(*) as total');
-		$count_annotation->join('a', 'entities', 'e', 'a.owner_guid = e.guid AND e.type = "user"');
-		$count_annotation->where($count_annotation->compare('a.access_id', '=', ACCESS_FRIENDS, ELGG_VALUE_INTEGER));
+		$count_annotation->select('count(*) AS total');
+		$count_annotation->joinEntitiesTable('a', 'owner_guid', 'inner', 'e');
+		$count_annotation->where($count_annotation->compare('a.access_id', '=', ACCESS_FRIENDS, ELGG_VALUE_INTEGER))
+			->andWhere($count_annotation->compare('e.type', '=', 'user', ELGG_VALUE_STRING));
 		
 		$total = $count_annotation->execute()->fetchColumn();
 		if ($total) {
@@ -199,9 +200,14 @@ class MigrateFriendsACL implements AsynchronousUpgrade {
 
 		$query = "
 			INSERT INTO {$dbprefix}access_collections (name, subtype, owner_guid)
-			SELECT 'friends', 'friends', e.guid FROM {$dbprefix}entities e
+			SELECT 'friends', 'friends', e.guid
+			FROM {$dbprefix}entities e
 			WHERE e.type = 'user'
-			AND e.guid NOT IN (select acl.owner_guid FROM {$dbprefix}access_collections acl WHERE acl.subtype = 'friends')
+			AND e.guid NOT IN (
+				SELECT acl.owner_guid
+				FROM {$dbprefix}access_collections acl
+				WHERE acl.subtype = 'friends'
+			)
 		";
 		
 		_elgg_services()->db->updateData($query);
@@ -212,10 +218,15 @@ class MigrateFriendsACL implements AsynchronousUpgrade {
 
 		$query = "
 			INSERT INTO {$dbprefix}access_collection_membership (user_guid, access_collection_id)
-			SELECT r.guid_two, acl.id FROM {$dbprefix}entity_relationships r
+			SELECT r.guid_two, acl.id
+			FROM {$dbprefix}entity_relationships r
 			JOIN {$dbprefix}access_collections acl ON r.guid_one = acl.owner_guid
 			WHERE r.relationship = 'friend'
-			AND r.guid_two NOT IN (select subacl.user_guid FROM {$dbprefix}access_collection_membership subacl where subacl.access_collection_id = acl.id)
+			AND r.guid_two NOT IN (
+				SELECT subacl.user_guid
+				FROM {$dbprefix}access_collection_membership subacl
+				WHERE subacl.access_collection_id = acl.id
+			)
 		";
 		
 		_elgg_services()->db->updateData($query);
@@ -226,10 +237,9 @@ class MigrateFriendsACL implements AsynchronousUpgrade {
 
 		$query = "
 			UPDATE {$dbprefix}annotations a
-			JOIN {$dbprefix}access_collections acl on a.owner_guid = acl.owner_guid AND acl.subtype = 'friends'
+			JOIN {$dbprefix}access_collections acl ON a.owner_guid = acl.owner_guid AND acl.subtype = 'friends'
 			SET a.access_id = acl.id
-			where a.access_id = -2
-		";
+			WHERE a.access_id = " . ACCESS_FRIENDS;
 		
 		_elgg_services()->db->updateData($query);
 	}
