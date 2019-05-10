@@ -55,7 +55,6 @@ class ElggSession {
 	 * @since 1.9
 	 */
 	public function start() {
-		
 		if ($this->storage->getId()) {
 			return true;
 		}
@@ -91,16 +90,6 @@ class ElggSession {
 		$this->generateSessionToken();
 		_elgg_services()->sessionCache->clear();
 		return $result;
-	}
-
-	/**
-	 * Save the session data and closes the session
-	 *
-	 * @return void
-	 * @since 3.0
-	 */
-	public function save() {
-		$this->storage->save();
 	}
 
 	/**
