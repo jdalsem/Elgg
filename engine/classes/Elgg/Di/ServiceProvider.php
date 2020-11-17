@@ -83,6 +83,7 @@ use Elgg\Security\PasswordGeneratorService;
  * @property-read \Elgg\ImageService                              $imageService
  * @property-read \Elgg\Invoker                                   $invoker
  * @property-read \Elgg\I18n\LocaleService                        $localeService
+ * @property-read \ElggCache                                      $localFileCache
  * @property-read \Elgg\Logger                                    $logger
  * @property-read Mailer                                          $mailer
  * @property-read \Elgg\Menu\Service                              $menus
@@ -150,7 +151,7 @@ class ServiceProvider extends DiContainer {
 			$manager = new \Elgg\AutoloadManager($c->classLoader);
 
 			if (!$c->config->AutoloaderManager_skip_storage) {
-				$manager->setCache($c->fileCache);
+				$manager->setCache($c->localFileCache);
 				$manager->loadCache();
 			}
 
@@ -397,6 +398,11 @@ class ServiceProvider extends DiContainer {
 		$this->setFactory('fileCache', function(ServiceProvider $c) {
 			$flags = ELGG_CACHE_PERSISTENT | ELGG_CACHE_FILESYSTEM | ELGG_CACHE_RUNTIME;
 			return new CompositeCache("elgg_system_cache", $c->config, $flags);
+		});
+
+		$this->setFactory('localFileCache', function(ServiceProvider $c) {
+			$flags = ELGG_CACHE_PERSISTENT | ELGG_CACHE_LOCALFILESYSTEM | ELGG_CACHE_RUNTIME;
+			return new CompositeCache("elgg_local_system_cache", $c->config, $flags);
 		});
 
 		$this->setFactory('filestore', function(ServiceProvider $c) {
@@ -699,6 +705,14 @@ class ServiceProvider extends DiContainer {
 
 		$this->setFactory('systemCache', function (ServiceProvider $c) {
 			$cache = new \Elgg\Cache\SystemCache($c->fileCache, $c->config);
+			if ($c->config->enable_profiling) {
+				$cache->setTimer($c->timer);
+			}
+			return $cache;
+		});
+
+		$this->setFactory('serverCache', function (ServiceProvider $c) {
+			$cache = new \Elgg\Cache\SystemCache($c->localFileCache, $c->config);
 			if ($c->config->enable_profiling) {
 				$cache->setTimer($c->timer);
 			}

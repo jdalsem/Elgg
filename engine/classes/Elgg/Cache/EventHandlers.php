@@ -22,6 +22,7 @@ class EventHandlers {
 		_elgg_services()->dic_cache->getCache()->disable();
 		_elgg_services()->autoloadManager->getCache()->disable();
 		_elgg_services()->systemCache->getCache()->disable();
+		_elgg_services()->serverCache->getCache()->disable();
 	}
 	
 	/**
@@ -37,6 +38,7 @@ class EventHandlers {
 		_elgg_services()->dic_cache->getCache()->enable();
 		_elgg_services()->autoloadManager->getCache()->enable();
 		_elgg_services()->systemCache->getCache()->enable();
+		_elgg_services()->serverCache->getCache()->enable();
 	}
 
 	/**
@@ -52,6 +54,7 @@ class EventHandlers {
 		_elgg_services()->dic_cache->getCache()->purge();
 		_elgg_services()->simpleCache->purge();
 		_elgg_services()->fileCache->purge();
+		_elgg_services()->localFileCache->purge();
 	}
 
 	/**
@@ -66,6 +69,7 @@ class EventHandlers {
 		_elgg_services()->dataCache->invalidate();
 		_elgg_services()->dic_cache->getCache()->invalidate();
 		_elgg_services()->fileCache->invalidate();
+		_elgg_services()->localFileCache->invalidate();
 	}
 
 	/**
@@ -82,6 +86,7 @@ class EventHandlers {
 		_elgg_services()->simpleCache->clear();
 		_elgg_services()->autoloadManager->deleteCache();
 		_elgg_services()->fileCache->clear();
+		_elgg_services()->localFileCache->clear();
 		
 		if (function_exists('opcache_reset')) {
 			opcache_reset();
