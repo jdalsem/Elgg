@@ -2,6 +2,15 @@
 
 elgg_require_css('admin/users/newest');
 
+elgg_register_menu_item('title', [
+	'name' => 'admin-add-user',
+	'icon' => 'user-plus',
+	'text' => elgg_echo('admin:users:add'),
+	'href' => 'admin/users/add',
+	'link_class' => 'elgg-button elgg-button-action',
+]);
+
+
 echo elgg_view_form('admin/users/search', [
 	'method' => 'GET',
 	'action' => 'admin/users/newest',
