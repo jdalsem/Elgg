@@ -5,20 +5,12 @@ return [
 		'name' => 'CKEditor',
 		'activate_on_install' => true,
 	],
-	'bootstrap' => Elgg\CKEditor\Bootstrap::class,
 	'views' => [
 		'default' => [
-			'ckeditor/' => 'vendor/ckeditor/ckeditor/',
-			'jquery.ckeditor.js' => 'vendor/ckeditor/ckeditor/adapters/jquery.js',
+			'ckeditor/' => __DIR__ . '/vendors/ckeditor5-35.2.0/build/',
 		],
 	],
 	'view_extensions' => [
-		'admin.css' => [
-			'ckeditor.css' => [],
-		],
-		'elgg.css' => [
-			'ckeditor.css' => [],
-		],
 		'elgg/wysiwyg.css' => [
 			'elements/reset.css' => ['priority' => 100],
 			'elements/typography.css' => ['priority' => 100],
@@ -28,14 +20,23 @@ return [
 		],
 	],
 	'events' => [
-		'register' => [
-			'menu:longtext' => [
-				'Elgg\CKEditor\Menus\LongText::registerToggler' => [],
+		'allowed_styles' => [
+			'htmlawed' => [
+				'Elgg\CKEditor\HTMLawed::extendAllowedStyles' => [],
 			],
 		],
 		'view_vars' => [
 			'input/longtext' => [
 				'Elgg\CKEditor\Views::setInputLongTextIDViewVar' => [],
+			],
+		],
+	],
+	'routes' => [
+		'default:ckeditor:upload' => [
+			'path' => '/ckeditor/upload',
+			'controller' => \Elgg\CKEditor\Upload::class,
+			'middleware' => [
+				\Elgg\Router\Middleware\Gatekeeper::class,
 			],
 		],
 	],

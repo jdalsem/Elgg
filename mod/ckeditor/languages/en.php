@@ -6,7 +6,7 @@
  */
 
 return array(
-	'ckeditor:html' => "Edit HTML",
-	'ckeditor:visual' => "Visual editor",
-	'ckeditor:blockimagepaste' => "Direct image paste is not allowed.",
+	'ckeditor:upload:missing_upload' => "Missing an uploaded image",
+	'ckeditor:upload:invalid_type' => "Uploaded image is not a valid image type",
+	'ckeditor:upload:resize_failed' => "The image could not be resized",
 );
