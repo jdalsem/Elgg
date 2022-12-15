@@ -3,9 +3,9 @@
 namespace Elgg\CKEditor;
 
 /**
- * Event callbacks for views
+ * Hook callbacks for views
  *
- * @since 4.0
+ * @since 5.0
  * @internal
  */
 class Views {
@@ -13,7 +13,7 @@ class Views {
 	/**
 	 * Adds an ID to the view vars if not set
 	 *
-	 * @param \Elgg\Event $event 'view_vars', 'input/longtext'
+	 * @param \Elgg\Event $hook 'view_vars', 'input/longtext'
 	 *
 	 * @return array
 	 */
