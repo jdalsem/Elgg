@@ -1,7 +1,8 @@
-define(['jquery', 'ckeditor/config/base', 'ckeditor/config/mentions', 'ckeditor/config/file_upload'], function($, base, mentions, file_upload) {
+define(['jquery', 'elgg', 'ckeditor/config/base', 'ckeditor/config/mentions', 'ckeditor/config/file_upload'], function($, elgg, base, mentions, file_upload) {
+	
 	return $.extend(base, mentions, file_upload, {
 		toolbar: {
-			items: [
+			items: elgg.data.ckeditor.toolbar_default || [
 				'Bold', 'Italic', 'Underline', 'Strikethrough',
 				'|',
 				'NumberedList', 'BulletedList', 'outdent', 'indent',

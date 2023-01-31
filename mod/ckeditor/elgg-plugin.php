@@ -25,6 +25,11 @@ return [
 				'Elgg\CKEditor\HTMLawed::extendAllowedStyles' => [],
 			],
 		],
+		'elgg.data' => [
+			'site' => [
+				'\Elgg\CKEditor\Views::setToolbarConfig' => [],
+			],
+		],
 		'view_vars' => [
 			'input/longtext' => [
 				'Elgg\CKEditor\Views::setInputLongTextIDViewVar' => [],

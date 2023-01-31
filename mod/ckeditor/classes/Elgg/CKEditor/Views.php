@@ -13,7 +13,7 @@ class Views {
 	/**
 	 * Adds an ID to the view vars if not set
 	 *
-	 * @param \Elgg\Event $hook 'view_vars', 'input/longtext'
+	 * @param \Elgg\Event $event 'view_vars', 'input/longtext'
 	 *
 	 * @return array
 	 */
@@ -29,5 +29,33 @@ class Views {
 		$vars['id'] = 'elgg-input-' . base_convert(mt_rand(), 10, 36);
 	
 		return $vars;
+	}
+
+	/**
+	 * Sets the toolbar config if configured
+	 *
+	 * @param \Elgg\Event $event 'elgg.data', 'site'
+	 *
+	 * @return array
+	 */
+	public static function setToolbarConfig(\Elgg\Event $event) {
+		$result = $event->getValue();
+		
+		$cleanup = function(string $text) {
+			$buttons = explode(',', trim($text));
+			
+			$buttons = array_map(function($val) {
+				return trim(trim($val), "'\"");
+			}, $buttons);
+						
+			return array_values(array_filter($buttons));
+		};
+		
+		$result['ckeditor'] = [
+			'toolbar_default' => $cleanup((string) elgg_get_plugin_setting('toolbar_default', 'ckeditor')) ?: null,
+			'toolbar_simple' => $cleanup((string) elgg_get_plugin_setting('toolbar_simple', 'ckeditor')) ?: null,
+		];
+		
+		return $result;
 	}
 }
