@@ -4,7 +4,6 @@ define(['elgg'], function(elgg) {
 	
 	return {
 		language: elgg.config.current_language,
-		
 		ui: {
 			viewportOffset: {
 				top: topbar_height

@@ -22,6 +22,9 @@ define(['jquery', 'elgg', 'elgg/hooks', 'ckeditor/ckeditor'], function ($, elgg,
 					.then(editor => {
 						window.editor = editor;
 						
+						// set classname based on type
+						$(editor.ui.view.element).addClass('elgg-ckeditor-' + editor_type);
+						
 						editor.model.document.on('change', () => {
 							// on change updateSourceElement()
 							editor.updateSourceElement();

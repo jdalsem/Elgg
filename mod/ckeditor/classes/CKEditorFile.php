@@ -12,9 +12,9 @@ class CKEditorFile extends \ElggFile {
 	/**
 	 * Return the system filestore based on dataroot.
 	 *
-	 * @return \ElggDiskFilestore
+	 * @return \Elgg\Filesystem\Filestore\DiskFilestore
 	 */
-	protected function getFilestore() {
+	protected function getFilestore(): \Elgg\Filesystem\Filestore\DiskFilestore {
 		
 		if (!isset($this->fs)) {
 			 $this->fs = new CKEditorFilestore();
