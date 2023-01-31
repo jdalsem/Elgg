@@ -38,3 +38,12 @@
 		height: auto;
 	}
 }
+
+
+.elgg-ckeditor-default .ck-editor__editable {
+	min-height: 250px;
+}
+
+.elgg-ckeditor-simple .ck-editor__editable {
+	min-height: 150px;
+}

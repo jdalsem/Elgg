@@ -7,13 +7,13 @@ define(['jquery', 'ckeditor/config/base', 'ckeditor/config/mentions', 'ckeditor/
 				'NumberedList', 'BulletedList', 'outdent', 'indent',
 				'|',
 				'Link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo',
-				//,  'Image', 'Blockquote', 'Paste', 'PasteFromWord', 'Maximize',
+				// 'Paste', 'PasteFromWord', 'Maximize',
 				'|',
 				'RemoveFormat'
 			]
 		},
 		image: {
-			toolbar: ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', 'linkImage']
+			toolbar: ['toggleImageCaption', 'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', 'linkImage']
 		},
 		table: {
 			contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
@@ -25,7 +25,6 @@ define(['jquery', 'ckeditor/config/base', 'ckeditor/config/mentions', 'ckeditor/
 // 					entities: false,
 // 					baseHref: elgg.get_site_url(),
 // 					extraPlugins: 'blockimagepaste',
-// 					contentsCss: elgg.get_simplecache_url('elgg/wysiwyg.css'),
 // 					disableNativeSpellChecker: false,
 // 					disableNativeTableHandles: false,
 // 					removeDialogTabs: 'image:advanced;image:Link;link:advanced;link:target',

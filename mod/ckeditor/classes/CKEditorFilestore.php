@@ -7,7 +7,7 @@ use Elgg\Exceptions\InvalidParameterException;
  *
  * @since 5.0
  */
-class CKEditorFilestore extends \ElggDiskFilestore {
+class CKEditorFilestore extends \Elgg\Filesystem\Filestore\DiskFilestore {
 	
 	/**
 	 * Number of entries per matrix dir.
@@ -17,9 +17,9 @@ class CKEditorFilestore extends \ElggDiskFilestore {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see ElggDiskFilestore::getFilenameOnFilestore()
+	 * @see \Elgg\Filesystem\Filestore\DiskFilestore::getFilenameOnFilestore()
 	 */
-	public function getFilenameOnFilestore(\ElggFile $file) {
+	public function getFilenameOnFilestore(\ElggFile $file): string {
 		
 		$owner_guid = $file->getOwnerGuid();
 		if (!$owner_guid) {
