@@ -6,10 +6,9 @@ define(['jquery', 'ckeditor/config/base', 'ckeditor/config/mentions', 'ckeditor/
 				'|',
 				'NumberedList', 'BulletedList', 'outdent', 'indent',
 				'|',
-				'Link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo',
-				// 'Paste', 'PasteFromWord', 'Maximize',
+				'Link', 'imageUpload', 'blockQuote', 'insertTable', 'undo', 'redo',
 				'|',
-				'RemoveFormat'
+				'RemoveFormat', 'sourceEditing'
 			]
 		},
 		image: {
@@ -20,13 +19,3 @@ define(['jquery', 'ckeditor/config/base', 'ckeditor/config/mentions', 'ckeditor/
 		}
 	});
 });
-
-// 					allowedContent: true,
-// 					entities: false,
-// 					baseHref: elgg.get_site_url(),
-// 					extraPlugins: 'blockimagepaste',
-// 					disableNativeSpellChecker: false,
-// 					disableNativeTableHandles: false,
-// 					removeDialogTabs: 'image:advanced;image:Link;link:advanced;link:target',
-// 					customConfig: false, //no additional config.js
-// 					stylesSet: false, //no additional styles.js
