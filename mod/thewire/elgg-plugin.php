@@ -66,6 +66,13 @@ return [
 			'path' => '/thewire/tag/{tag}',
 			'resource' => 'thewire/tag',
 		],
+		'collection:object:thewire:mentions' => [
+			'path' => '/thewire/mentions/{username}',
+			'resource' => 'thewire/mentions',
+			'middleware' => [
+				\Elgg\Router\Middleware\UserPageOwnerCanEditGatekeeper::class,
+			],
+		],
 		'view:object:thewire' => [
 			'path' => '/thewire/view/{guid}',
 			'resource' => 'thewire/view',
@@ -93,6 +100,9 @@ return [
 		'register' => [
 			'menu:entity' => [
 				'Elgg\TheWire\Menus\Entity::register' => [],
+			],
+			'menu:filter:filter' => [
+				'Elgg\TheWire\Menus\Filter::registerMentions' => [],
 			],
 			'menu:owner_block' => [
 				'Elgg\TheWire\Menus\OwnerBlock::register' => [],
