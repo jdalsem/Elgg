@@ -3,8 +3,10 @@
 namespace Elgg\Views;
 
 use Elgg\EventsService;
+use Elgg\Exceptions\Configuration\RegistrationException;
 use Elgg\Exceptions\InvalidArgumentException;
 use Elgg\Traits\Loggable;
+use Elgg\Users\Accounts;
 use Elgg\ViewsService;
 use Pelago\Emogrifier\CssInliner;
 
@@ -15,27 +17,18 @@ class HtmlFormatter {
 
 	use Loggable;
 
-	/**
-	 * @var ViewsService
-	 */
-	protected $views;
+	protected ViewsService $views;
 
-	/**
-	 * @var EventsService
-	 */
-	protected $events;
-
-	/**
-	 * @var AutoParagraph
-	 */
-	protected $autop;
+	protected EventsService $events;
+	
+	protected AutoParagraph $autop;
 
 	/**
 	 * Output constructor.
 	 *
-	 * @param ViewsService  $views  Views service
-	 * @param EventsService $events Events service
-	 * @param AutoParagraph $autop  Paragraph wrapper
+	 * @param ViewsService  $views    Views service
+	 * @param EventsService $events   Events service
+	 * @param AutoParagraph $autop    Paragraph wrapper
 	 */
 	public function __construct(
 		ViewsService $views,
@@ -64,6 +57,7 @@ class HtmlFormatter {
 		$options = array_merge([
 			'parse_urls' => true,
 			'parse_emails' => true,
+			'parse_mentions' => true,
 			'sanitize' => true,
 			'autop' => true,
 		], $options);
@@ -84,6 +78,10 @@ class HtmlFormatter {
 
 		if (elgg_extract('parse_emails', $options)) {
 			$html = $this->parseEmails($html);
+		}
+		
+		if (elgg_extract('parse_mentions', $options)) {
+			$html = $this->parseMentions($html);
 		}
 
 		if (elgg_extract('sanitize', $options)) {
@@ -123,6 +121,68 @@ class HtmlFormatter {
 		$linkify = new \Misd\Linkify\Linkify();
 
 		return $linkify->processEmails($text, ['attr' => ['rel' => 'nofollow']]);
+	}
+	
+	/**
+	 * Takes a string and turns any @ mentions into a formatted link
+	 *
+	 * @param string $text The input string
+	 *
+	 * @return string
+	 * @since 5.0
+	 */
+	public function parseMentions(string $text): string {
+		// match anchor tag with all attributes and wrapped html
+		// we want to exclude matches that have already been wrapped in an anchor
+		$match_anchor = "<a[^>]*?>.*?<\/a>";
+		
+		// match tag name and attributes
+		// we want to exclude matches that found within tag attributes
+		$match_attr = "<.*?>";
+		
+		// match at least one space or punctuation char before a match
+		$match_preceding_char = "(^|\s|\!|\.|\?|>|\G)+";
+		
+		// match @ followed by username
+		// @see \Elgg\Users\Accounts::assertValidUsername()
+		$match_username = "(@([^\s<]+))";
+		
+		$regex = "/{$match_anchor}|{$match_attr}|{$match_preceding_char}{$match_username}/iu";
+		
+		$callback = function (array $matches) {
+			$source = elgg_extract(0, $matches);
+			$preceding_char = elgg_extract(1, $matches);
+			$username = elgg_extract(3, $matches);
+			
+			if (empty($username)) {
+				return $source;
+			}
+			
+			try {
+				_elgg_services()->accounts->assertValidUsername($username);
+			} catch (RegistrationException $e) {
+				return $source;
+			}
+			
+			$user = elgg_get_user_by_username($username);
+			
+			// Catch the trailing period when used as punctuation and not a username.
+			$period = '';
+			if (!$user && str_ends_with($username, '.')) {
+				$user = elgg_get_user_by_username(rtrim($username, '.'));
+				$period = '.';
+			}
+			
+			if (!$user) {
+				return $source;
+			}
+			
+			$replacement = elgg_view_url($user->getURL(), "@{$user->username}");
+			
+			return $preceding_char . $replacement . $period;
+		};
+		
+		return preg_replace_callback($regex, $callback, $text);
 	}
 
 	/**
