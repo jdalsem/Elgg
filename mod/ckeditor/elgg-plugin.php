@@ -11,10 +11,6 @@ return [
 		],
 	],
 	'view_extensions' => [
-		'elgg/wysiwyg.css' => [
-			'elements/reset.css' => ['priority' => 100],
-			'elements/typography.css' => ['priority' => 100],
-		],
 		'input/longtext' => [
 			'ckeditor/init' => [],
 		],
