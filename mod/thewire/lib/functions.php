@@ -117,18 +117,7 @@ function thewire_filter(string $text): string {
 	$text = elgg_parse_urls($text);
 
 	// usernames
-	$text = preg_replace_callback(
-		'/(^|[^\w])@([\p{L}\p{Nd}._]+)/u',
-		function ($matches) {
-			$username = elgg_extract(2, $matches);
-			$url = elgg_generate_url('collection:object:thewire:owner', [
-				'username' => $username,
-			]);
-			$link = elgg_view_url($url, "@{$username}");
-			
-			return elgg_extract(1, $matches) . $link;
-		},
-		$text);
+	$text = elgg_parse_mentions($text);
 
 	// hashtags
 	$text = preg_replace_callback(

@@ -6,10 +6,16 @@ $limit = (int) elgg_extract('limit', $vars, elgg_get_config('default_limit'));
 $query = elgg_extract('term', $vars, elgg_extract('q', $vars));
 $input_name = elgg_extract('name', $vars);
 
+$subtype = elgg_extract('subtype', $vars);
+if (empty($subtype)) {
+	$searchable = elgg_entity_types_with_capability('searchable');
+	$subtype = elgg_extract('object', $searchable);
+}
+
 $options = [
 	'query' => $query,
 	'type' => 'object',
-	'subtype' => elgg_extract('subtype', $vars),
+	'subtype' => $subtype,
 	'limit' => $limit,
 	'sort_by' => [
 		'property_type' => 'metadata',
