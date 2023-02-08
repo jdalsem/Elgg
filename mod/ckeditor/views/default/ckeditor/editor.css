@@ -37,6 +37,19 @@
 		max-width: 100%;
 		height: auto;
 	}
+	
+	blockquote {
+		padding: 0.5rem 1rem;
+		margin: 0 0 1rem 0;
+		background-color: $(state-notice-background-color);
+		border: 1px solid $(state-notice-border-color);
+		color: $(state-notice-font-color);
+		font-style: normal;
+	}
+	
+	* + blockquote {
+		margin-top: 1rem;
+	}
 }
 
 .elgg-ckeditor-default .ck-editor__editable {
