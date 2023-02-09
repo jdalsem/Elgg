@@ -21,18 +21,18 @@ if ($post instanceof \ElggWire) {
 
 $chars_left = elgg_echo('thewire:charleft');
 
-$count_down = ($char_limit === 0) ? '' : "<span>$char_limit</span> $chars_left";
+$count_down = ($char_limit === 0) ? '' : elgg_format_element('span', [], $char_limit) . " {$chars_left}";
 $num_lines = ($char_limit === 0) ? 3 : 2;
 	
 if ($char_limit > 140) {
 	$num_lines = 3;
 }
 
-if ($char_limit) {
+if ($char_limit && !elgg_is_active_plugin('ckeditor')) {
 	elgg_require_js('forms/thewire/add');
 }
 
-echo elgg_view('input/plaintext', [
+echo elgg_view('input/longtext', [
 	'name' => 'body',
 	'class' => 'mtm',
 	'id' => 'thewire-textarea',
@@ -40,6 +40,7 @@ echo elgg_view('input/plaintext', [
 	'data-max-length' => $char_limit,
 	'required' => true,
 	'placeholder' => elgg_echo('thewire:form:body:placeholder'),
+	'editor_type' => 'thewire',
 ]);
 echo elgg_format_element('div', ['id' => 'thewire-characters-remaining'], $count_down);
 
