@@ -34,17 +34,24 @@ function thewire_save_post(string $text, int $userid, int $access_id, int $paren
 	$post = new \ElggWire();
 	$post->owner_guid = $userid;
 	$post->access_id = $access_id;
-
+	
+	$text = $text ?? '';
+	$text = trim(str_replace('&nbsp;', ' ', $text));
+	
 	// Character limit is now from config
 	$limit = elgg_get_plugin_setting('limit', 'thewire');
 	if ($limit > 0) {
-		$text = elgg_substr($text, 0, $limit);
+		$text_for_size = elgg_strip_tags($text);
+		if (strlen($text_for_size) > $limit) {
+			return false;
+		}
 	}
 	
-	$text = $text ?? '';
-
+	// no html tags allowed so we strip (except links (a) for mention support)
+	$text = elgg_strip_tags($text, '<a>');
+	
 	// no html tags allowed so we escape
-	$post->description = htmlspecialchars($text, ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+	$post->description = $text;
 
 	$post->method = $method; //method: site, email, api, ...
 
