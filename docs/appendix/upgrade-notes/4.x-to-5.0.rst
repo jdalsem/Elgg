@@ -437,6 +437,7 @@ Removed functions
 * ``groups_prepare_form_vars``
 * ``messages_prepare_form_vars``
 * ``pages_prepare_form_vars``
+* ``thewire_latest_guid``
 
 Removed class functions
 ~~~~~~~~~~~~~~~~~~~~~~~

@@ -91,11 +91,6 @@ return [
 			'context' => ['profile', 'dashboard'],
 		],
 	],
-	'view_extensions' => [
-		'elgg.css' => [
-			'thewire/css' => [],
-		],
-	],
 	'events' => [
 		'register' => [
 			'menu:entity' => [

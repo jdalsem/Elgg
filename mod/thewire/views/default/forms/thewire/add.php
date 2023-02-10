@@ -5,6 +5,8 @@
  * @uses $vars['post']
  */
 
+elgg_require_css('forms/thewire/add');
+
 $post = elgg_extract('post', $vars);
 $char_limit = (int) elgg_get_plugin_setting('limit', 'thewire');
 
@@ -42,6 +44,7 @@ echo elgg_view('input/longtext', [
 	'placeholder' => elgg_echo('thewire:form:body:placeholder'),
 	'editor_type' => 'thewire',
 ]);
+
 echo elgg_format_element('div', ['id' => 'thewire-characters-remaining'], $count_down);
 
 $footer = elgg_view_field([
@@ -49,4 +52,5 @@ $footer = elgg_view_field([
 	'value' => $text,
 	'id' => 'thewire-submit-button',
 ]);
+
 elgg_set_form_footer($footer);

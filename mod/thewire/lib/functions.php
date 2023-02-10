@@ -4,21 +4,6 @@
  */
 
 /**
- * Get the latest wire guid - used for ajax update
- *
- * @return int
- */
-function thewire_latest_guid(): int {
-	$post = elgg_get_entities([
-		'type' => 'object',
-		'subtype' => 'thewire',
-		'limit' => 1,
-	]);
-	
-	return $post ? $post[0]->guid : 0;
-}
-
-/**
  * Create a new wire post.
  *
  * @param string $text        The post text

@@ -1,9 +1,7 @@
 define(['jquery', 'elgg', 'ckeditor/config/base', 'ckeditor/config/mentions'], function($, elgg, base, mentions) {
 	return $.extend(base, mentions, {
-		removePlugins: ['Bold', 'Italic', 'Underline'],
-		toolbar: {
-			items: []
-		},
+		removePlugins: ['Autoformat', 'Link', 'AutoLink', 'ImageInsert', 'AutoImage', 'Bold', 'Italic', 'Underline'],
+		toolbar: [],
 		wordCount: {
 			displayCharacters: false,
 			displayWords: false,
@@ -26,7 +24,6 @@ define(['jquery', 'elgg', 'ckeditor/config/base', 'ckeditor/config/mentions'], f
 					$container.removeClass('thewire-characters-remaining-warning');
 					$('#thewire-submit-button').prop('disabled', false);
 					$('#thewire-submit-button').removeClass('elgg-state-disabled');
-					
 				}
 			}
 		}
