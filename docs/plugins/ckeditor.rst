@@ -1,5 +1,6 @@
-CKEditor WYSIWYG plugin
-========================
+CKEditor
+========
+
 
 Plugin settings
 ---------------

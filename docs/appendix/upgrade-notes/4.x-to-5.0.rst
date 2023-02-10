@@ -5,6 +5,12 @@ From 4.x to 5.0
    :local:
    :depth: 1
 
+CKEditor
+--------
+
+The editor has been updated to version 5. This brings some new features (like mentions and images in content) but also impacts existing plugins.
+Most notable are the wire (which now also has mention support) and the removal of the embed plugin.
+
 Composer
 --------
 
