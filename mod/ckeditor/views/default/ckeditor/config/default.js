@@ -5,7 +5,7 @@ define(['jquery', 'elgg', 'ckeditor/config/base', 'ckeditor/config/mentions', 'c
 			items: elgg.data.ckeditor.toolbar_default || [
 				'Bold', 'Italic', 'Underline', 'Strikethrough',
 				'|',
-				'NumberedList', 'BulletedList', 'outdent', 'indent',
+				'NumberedList', 'BulletedList', 'outdent', 'indent', 'alignment',
 				'|',
 				'Link', 'imageUpload', 'blockQuote', 'insertTable', 'undo', 'redo',
 				'|',
@@ -17,6 +17,9 @@ define(['jquery', 'elgg', 'ckeditor/config/base', 'ckeditor/config/mentions', 'c
 		},
 		table: {
 			contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
-		}
+		},
+		alignment: {
+            options: ['left', 'center', 'right']
+        }
 	});
 });
