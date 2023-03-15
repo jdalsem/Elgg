@@ -11,6 +11,13 @@ use Elgg\Menu\MenuItems;
  */
 class Filter {
 	
+	/**
+	 * Adds mentions to the filter menu
+	 *
+	 * @param \Elgg\Event $event 'register', 'menu:filter:filter'
+	 *
+	 * @return void|\Elgg\Menu\MenuItems
+	 */
 	public static function registerMentions(\Elgg\Event $event): ?MenuItems {
 		$user = elgg_get_logged_in_user_entity();
 		if (!$user instanceof \ElggUser) {

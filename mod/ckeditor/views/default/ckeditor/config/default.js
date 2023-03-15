@@ -19,7 +19,7 @@ define(['jquery', 'elgg', 'ckeditor/config/base', 'ckeditor/config/mentions', 'c
 			contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableCellProperties', 'tableProperties']
 		},
 		alignment: {
-            options: ['left', 'center', 'right']
-        }
+			options: ['left', 'center', 'right']
+		}
 	});
 });

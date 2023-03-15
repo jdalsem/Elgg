@@ -13,11 +13,11 @@ class HTMLawed {
 	/**
 	 * Allows additional styles
 	 *
-	 * @param \Elgg\Event $hook 'allowed_styles', 'htmlawed'
+	 * @param \Elgg\Event $event 'allowed_styles', 'htmlawed'
 	 *
 	 * @return array
 	 */
-	public static function extendAllowedStyles(\Elgg\Event $event) {
+	public static function extendAllowedStyles(\Elgg\Event $event): array {
 		$allowed_styles = $event->getValue();
 		
 		switch ($event->getParam('tag')) {

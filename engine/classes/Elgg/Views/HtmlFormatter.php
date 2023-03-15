@@ -26,9 +26,9 @@ class HtmlFormatter {
 	/**
 	 * Output constructor.
 	 *
-	 * @param ViewsService  $views    Views service
-	 * @param EventsService $events   Events service
-	 * @param AutoParagraph $autop    Paragraph wrapper
+	 * @param ViewsService  $views  Views service
+	 * @param EventsService $events Events service
+	 * @param AutoParagraph $autop  Paragraph wrapper
 	 */
 	public function __construct(
 		ViewsService $views,
@@ -134,18 +134,18 @@ class HtmlFormatter {
 	public function parseMentions(string $text): string {
 		// match anchor tag with all attributes and wrapped html
 		// we want to exclude matches that have already been wrapped in an anchor
-		$match_anchor = "<a[^>]*?>.*?<\/a>";
+		$match_anchor = '<a[^>]*?>.*?<\/a>';
 		
 		// match tag name and attributes
 		// we want to exclude matches that found within tag attributes
-		$match_attr = "<.*?>";
+		$match_attr = '<.*?>';
 		
 		// match at least one space or punctuation char before a match
-		$match_preceding_char = "(^|\s|\!|\.|\?|>|\G)+";
+		$match_preceding_char = '(^|\s|\!|\.|\?|>|\G)+';
 		
 		// match @ followed by username
 		// @see \Elgg\Users\Accounts::assertValidUsername()
-		$match_username = "(@([^\s<]+))";
+		$match_username = '(@([^\s<]+))';
 		
 		$regex = "/{$match_anchor}|{$match_attr}|{$match_preceding_char}{$match_username}/iu";
 		
