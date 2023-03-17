@@ -16,9 +16,9 @@ return [
 		],
 	],
 	'events' => [
-		'allowed_styles' => [
+		'attributes' => [
 			'htmlawed' => [
-				'Elgg\CKEditor\HTMLawed::extendAllowedStyles' => [],
+				'\Elgg\Input\ValidateInputHandler::sanitizeStyles' => ['unregister' => true],
 			],
 		],
 		'elgg.data' => [

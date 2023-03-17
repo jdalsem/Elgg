@@ -22,6 +22,11 @@ return [
 			],
 		],
 	],
+	'attributes' => [
+		'htmlawed' => [
+			'\Elgg\Input\ValidateInputHandler::sanitizeStyles' => [],
+		],
+	],
 	'ban' => [
 		'user' => [
 			\Elgg\Users\BanUserNotificationHandler::class => [],
