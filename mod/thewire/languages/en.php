@@ -64,6 +64,8 @@ return array(
 	'thewire:notify:reply' => '%s responded to %s on the wire:',
 	'thewire:notify:post' => '%s posted on the wire:',
 	'thewire:notify:footer' => "View and reply:\n%s",
+	
+	'notification:mentions:object:thewire:subject' => '%s mentioned you in a wire post',
 
 	/**
 	 * Settings

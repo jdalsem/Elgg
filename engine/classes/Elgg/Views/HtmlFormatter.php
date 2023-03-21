@@ -16,6 +16,26 @@ use Pelago\Emogrifier\CssInliner;
 class HtmlFormatter {
 
 	use Loggable;
+	
+	/**
+	 * Mentions regex
+	 *
+	 * Match anchor tag with all attributes and wrapped html
+	 * we want to exclude matches that have already been wrapped in an anchor
+	 * '<a[^>]*?>.*?<\/a>'
+	 *
+	 * Match tag name and attributes
+	 * we want to exclude matches that found within tag attributes
+	 * '<.*?>'
+	 *
+	 * Match at least one space or punctuation char before a match
+	 * '(^|\s|\!|\.|\?|>|\G)+'
+	 *
+	 * Match @ followed by username
+	 * @see \Elgg\Users\Accounts::assertValidUsername()
+	 * '(@([^\s<]+))'
+	 */
+	public const MENTION_REGEX = '/<a[^>]*?>.*?<\/a>|<.*?>|(^|\s|\!|\.|\?|>|\G)+(@([^\s<]+))/iu';
 
 	protected ViewsService $views;
 
@@ -132,23 +152,6 @@ class HtmlFormatter {
 	 * @since 5.0
 	 */
 	public function parseMentions(string $text): string {
-		// match anchor tag with all attributes and wrapped html
-		// we want to exclude matches that have already been wrapped in an anchor
-		$match_anchor = '<a[^>]*?>.*?<\/a>';
-		
-		// match tag name and attributes
-		// we want to exclude matches that found within tag attributes
-		$match_attr = '<.*?>';
-		
-		// match at least one space or punctuation char before a match
-		$match_preceding_char = '(^|\s|\!|\.|\?|>|\G)+';
-		
-		// match @ followed by username
-		// @see \Elgg\Users\Accounts::assertValidUsername()
-		$match_username = '(@([^\s<]+))';
-		
-		$regex = "/{$match_anchor}|{$match_attr}|{$match_preceding_char}{$match_username}/iu";
-		
 		$callback = function (array $matches) {
 			$source = elgg_extract(0, $matches);
 			$preceding_char = elgg_extract(1, $matches);
@@ -182,7 +185,7 @@ class HtmlFormatter {
 			return $preceding_char . $replacement . $period;
 		};
 		
-		return preg_replace_callback($regex, $callback, $text);
+		return preg_replace_callback(self::MENTION_REGEX, $callback, $text);
 	}
 
 	/**

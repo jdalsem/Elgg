@@ -90,6 +90,9 @@ return [
 		],
 	],
 	'create:after' => [
+		'all' => [
+			\Elgg\Notifications\MentionsEnqueueEventHandler::class => [],
+		],
 		'object' => [
 			\Elgg\Comments\AutoSubscribeHandler::class => [],
 			\Elgg\Notifications\CreateContentEventHandler::class => [],
@@ -410,6 +413,7 @@ return [
 			\Elgg\Comments\SyncContainerAccessHandler::class => [
 				'priority' => 600,
 			],
+			\Elgg\Notifications\MentionsEnqueueEventHandler::class => [],
 		],
 		'group' => [
 			\Elgg\Icons\MoveIconsOnOwnerChangeHandler::class => [],

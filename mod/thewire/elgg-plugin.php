@@ -116,6 +116,7 @@ return [
 		'object' => [
 			'thewire' => [
 				'create' => CreateTheWireEventHandler::class,
+				'mentions' => \Elgg\Notifications\MentionsEventHandler::class,
 			],
 		],
 	],

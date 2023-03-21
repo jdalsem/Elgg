@@ -328,6 +328,7 @@ return array(
 	'usersettings:notifications:default:description' => 'Default notification settings for events from the system',
 	'usersettings:notifications:content_create:description' => 'Default notification settings for new content you created, this can cause notifications when others take action on you content like leaving a comment',
 	'usersettings:notifications:create_comment:description' => "Default notification setting when you comment on content in order to follow the rest of the conversation",
+	'usersettings:notifications:mentions:description' => "Receive a notification when you get @mentioned",
 
 	'usersettings:notifications:timed_muting' => "Temporarily disable notifications",
 	'usersettings:notifications:timed_muting:help' => "If you don't wish to receive any notifications during a certain period (for example a holiday) you can set a start and end date to temporarily disable all notifications",
@@ -347,6 +348,12 @@ return array(
 %s',
 	'notification:subject' => 'Notification about %s',
 	'notification:body' => 'View the new activity at %s',
+	
+	'notification:mentions:subject' => '%s mentioned you',
+	'notification:mentions:body' => "%s mentioned you in '%s'
+
+To see the full post, click on the link below:
+%s",
 	
 	'notifications:delayed_email:subject:daily' => "Daily notifications",
 	'notifications:delayed_email:subject:weekly' => "Weekly notifications",
@@ -1644,6 +1651,8 @@ To reply or view the original item, click here:
 
 To reply or view the original item, click here:
 %s",
+
+	'notification:mentions:object:comment:subject' => '%s mentioned you in a comment',
 
 /**
  * Entities
