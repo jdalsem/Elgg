@@ -21,7 +21,7 @@ use Psr\Log\LogLevel;
  *
  * @internal
  *
- * @property-read string $prefix Elgg table prefix (read only)
+ * @property-read string $prefix Elgg table prefix (read-only)
  */
 class Database {
 	
@@ -114,12 +114,12 @@ class Database {
 		if (isset($this->connections[$type])) {
 			// type is configured
 			return $this->connections[$type];
-		} elseif (isset($this->connections['readwrite'])) {
+		} elseif (isset($this->connections[DbConfig::READ_WRITE])) {
 			// fallback, for request of read/write but no split db
-			return $this->connections['readwrite'];
-		} elseif (isset($this->connections['read'])) {
+			return $this->connections[DbConfig::READ_WRITE];
+		} elseif (isset($this->connections[DbConfig::READ])) {
 			// split db configured, readwrite requested
-			return $this->connections['read'];
+			return $this->connections[DbConfig::READ];
 		}
 		
 		$this->setupConnections();
@@ -137,10 +137,10 @@ class Database {
 	 */
 	public function setupConnections(): void {
 		if ($this->db_config->isDatabaseSplit()) {
-			$this->connect('read');
-			$this->connect('write');
+			$this->connect(DbConfig::READ);
+			$this->connect(DbConfig::WRITE);
 		} else {
-			$this->connect('readwrite');
+			$this->connect(DbConfig::READ_WRITE);
 		}
 	}
 
@@ -154,7 +154,7 @@ class Database {
 	 * @return void
 	 * @throws DatabaseException
 	 */
-	public function connect(string $type = 'readwrite'): void {
+	public function connect(string $type = DbConfig::READ_WRITE): void {
 		$conf = $this->db_config->getConnectionConfig($type);
 
 		$params = [
@@ -282,7 +282,7 @@ class Database {
 	/**
 	 * Delete data from the database
 	 *
-	 * @note Altering the DB invalidates all queries in query cache.
+	 * @note Altering the DB invalidates all queries in the query cache.
 	 *
 	 * @param QueryBuilder $query The SQL query to run
 	 *
@@ -333,7 +333,7 @@ class Database {
 	}
 
 	/**
-	 * Handles queries that return results, running the results through a
+	 * Handles queries that return results, running the results through
 	 * an optional callback function. This is for R queries (from CRUD).
 	 *
 	 * @param QueryBuilder $query    The select query to execute
@@ -450,14 +450,17 @@ class Database {
 	 * Tracks the query count and timers for a given query
 	 *
 	 * @param QueryBuilder $query    The query
-	 * @param callable     $callback Callback to execyte during query execution
+	 * @param callable     $callback Callback to execute during query execution
 	 *
 	 * @return mixed
 	 */
 	public function trackQuery(QueryBuilder $query, callable $callback) {
-
 		$params = $query->getParameters();
 		$sql = $query->getSQL();
+
+		if ($this->config->db_enable_query_logging) {
+			$this->getLogger()->notice($sql, ['params' => $params]);
+		}
 
 		$this->query_count++;
 
@@ -488,7 +491,7 @@ class Database {
 	 * be passed a \Doctrine\DBAL\Driver\Statement.
 	 *
 	 * @param QueryBuilder $query    The query to execute
-	 * @param callable     $callback A callback function to pass the results array to
+	 * @param callable     $callback A callback function to pass the result array to
 	 *
 	 * @return void
 	 */
@@ -560,7 +563,7 @@ class Database {
 	 *
 	 * @return string Empty if version cannot be determined
 	 */
-	public function getServerVersion(string $type = DbConfig::READ_WRITE): string {
+	public function getServerVersion(string $type = DbConfig::READ): string {
 		return $this->getConnection($type)->getServerVersion();
 	}
 
@@ -571,7 +574,7 @@ class Database {
 	 *
 	 * @return bool if MariaDB is detected
 	 */
-	public function isMariaDB(string $type = DbConfig::READ_WRITE): bool {
+	public function isMariaDB(string $type = DbConfig::READ): bool {
 		return $this->getConnection($type)->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MariaDBPlatform;
 	}
 	
@@ -584,7 +587,7 @@ class Database {
 	 *
 	 * @since 6.0
 	 */
-	public function isMySQL(string $type = DbConfig::READ_WRITE): bool {
+	public function isMySQL(string $type = DbConfig::READ): bool {
 		return $this->getConnection($type)->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQLPlatform;
 	}
 	
