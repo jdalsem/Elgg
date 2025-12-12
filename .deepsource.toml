@@ -1,5 +1,7 @@
 version = 1
 
+exclude_patterns = ["engine/tests/**"]
+
 [[analyzers]]
 name = "javascript"
 
